@@ -10,22 +10,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Deploy via SSH
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          cd /home/ec2-user/apps/thrayam-threads
-          git pull origin main
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "🚀 Deploy started"
 
-          cd backend
-          npm install
-          pm2 restart thrayam-backend
+            cd /home/ec2-user/apps/thrayam-threads
 
-          cd ../frontend
-          npm install
-          npm run build
+            echo "📥 Pulling latest code"
+            git pull origin main
 
-          sudo systemctl reload nginx
+            echo "📦 Installing backend dependencies"
+            cd backend
+            npm install
+
+            echo "♻ Restarting backend"
+            pm2 restart thrayam-backend || pm2 start index.js --name thrayam-backend
+
+            echo "🎨 Building frontend"
+            cd ../frontend
+            npm install
+            npm run build
+
+            echo "🔁 Reloading Nginx"
+            sudo systemctl reload nginx
+
+            echo "✅ Deployment finished"
