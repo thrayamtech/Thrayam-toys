@@ -1,5 +1,6 @@
 const Product = require('../models/Product');
 const Category = require('../models/Category');
+const { uploadToS3, deleteFromS3, extractS3Key } = require('../utils/s3Upload');
 
 // @desc    Get all products with filters
 // @route   GET /api/products
@@ -156,12 +157,18 @@ exports.createProduct = async (req, res) => {
       };
     }
 
-    // Handle uploaded images
+    // Handle uploaded images - Upload to S3
     if (req.files && req.files.length > 0) {
-      productData.images = req.files.map((file, index) => ({
-        url: `/uploads/${file.filename}`,
-        alt: `${req.body.name} - Image ${index + 1}`
-      }));
+      const uploadPromises = req.files.map(async (file, index) => {
+        const uploadResult = await uploadToS3(file);
+        return {
+          url: uploadResult.url,
+          key: uploadResult.key,
+          alt: `${req.body.name} - Image ${index + 1}`
+        };
+      });
+
+      productData.images = await Promise.all(uploadPromises);
     }
 
     const product = await Product.create(productData);
@@ -205,10 +212,75 @@ exports.updateProduct = async (req, res) => {
       });
     }
 
-    product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    });
+    console.log('Updating product with data:', req.body);
+    console.log('Uploaded files:', req.files);
+
+    // Parse the update data
+    const updateData = { ...req.body };
+
+    // Parse JSON fields if they exist
+    if (updateData.colors && typeof updateData.colors === 'string') {
+      updateData.colors = JSON.parse(updateData.colors);
+    }
+    if (updateData.sizes && typeof updateData.sizes === 'string') {
+      updateData.sizes = JSON.parse(updateData.sizes);
+    }
+
+    // Handle existing images from request
+    let existingImages = [];
+    if (req.body.existingImages) {
+      existingImages = typeof req.body.existingImages === 'string'
+        ? JSON.parse(req.body.existingImages)
+        : req.body.existingImages;
+    }
+
+    // Find images to delete (images in DB but not in existingImages)
+    const imagesToDelete = product.images.filter(
+      img => !existingImages.some(existing => existing.url === img.url)
+    );
+
+    // Delete removed images from S3
+    if (imagesToDelete.length > 0) {
+      const deletePromises = imagesToDelete.map(async (img) => {
+        const key = extractS3Key(img.url);
+        if (key) {
+          try {
+            await deleteFromS3(key);
+            console.log(`Deleted image from S3: ${key}`);
+          } catch (error) {
+            console.error(`Error deleting image from S3: ${key}`, error);
+          }
+        }
+      });
+      await Promise.all(deletePromises);
+    }
+
+    // Upload new images to S3
+    let newImages = [];
+    if (req.files && req.files.length > 0) {
+      const uploadPromises = req.files.map(async (file, index) => {
+        const uploadResult = await uploadToS3(file);
+        return {
+          url: uploadResult.url,
+          key: uploadResult.key,
+          alt: `${updateData.name || product.name} - Image ${existingImages.length + index + 1}`
+        };
+      });
+      newImages = await Promise.all(uploadPromises);
+    }
+
+    // Combine existing and new images
+    updateData.images = [...existingImages, ...newImages];
+
+    // Update the product
+    product = await Product.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      {
+        new: true,
+        runValidators: true
+      }
+    );
 
     res.status(200).json({
       success: true,
@@ -216,6 +288,7 @@ exports.updateProduct = async (req, res) => {
       product
     });
   } catch (error) {
+    console.error('Error updating product:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -235,6 +308,22 @@ exports.deleteProduct = async (req, res) => {
         success: false,
         message: 'Product not found'
       });
+    }
+
+    // Delete all product images from S3
+    if (product.images && product.images.length > 0) {
+      const deletePromises = product.images.map(async (img) => {
+        const key = extractS3Key(img.url);
+        if (key) {
+          try {
+            await deleteFromS3(key);
+            console.log(`Deleted image from S3: ${key}`);
+          } catch (error) {
+            console.error(`Error deleting image from S3: ${key}`, error);
+          }
+        }
+      });
+      await Promise.all(deletePromises);
     }
 
     await product.deleteOne();

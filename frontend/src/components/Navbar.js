@@ -46,17 +46,17 @@ const Navbar = ({ onCartOpen }) => {
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-between items-center text-xs font-light tracking-wide">
             <div className="flex items-center space-x-4">
-              <a href="mailto:[email protected]" className="flex items-center hover:text-white/80 transition-colors duration-300">
+              <a href="mailto:info@thrayamthreads.com" className="flex items-center hover:text-white/80 transition-colors duration-300">
                 <FaEnvelope className="mr-1.5 text-sm" />
-                <span className="hidden sm:inline">[email protected]</span>
+                <span className="hidden sm:inline">info@thrayamthreads.com</span>
               </a>
-              <a href="tel:+919744707060" className="flex items-center hover:text-white/80 transition-colors duration-300">
+              <a href="tel:+918807259471" className="flex items-center hover:text-white/80 transition-colors duration-300">
                 <FaPhone className="mr-1.5 text-sm" />
-                +91 97447 07060
+                +91 88072 59471
               </a>
             </div>
             <div className="flex items-center space-x-4">
-              <a href="https://wa.me/919744707060" target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-white/80 transition-colors duration-300">
+              <a href="https://wa.me/918807259471" target="_blank" rel="noopener noreferrer" className="flex items-center hover:text-white/80 transition-colors duration-300">
                 <FaWhatsapp className="mr-1.5 text-sm" />
                 <span className="hidden md:inline">WhatsApp</span>
               </a>
@@ -75,15 +75,24 @@ const Navbar = ({ onCartOpen }) => {
               {/* Premium Logo */}
               <Link to="/" className="flex items-center flex-shrink-0 mr-4">
                 <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#5A0F1B] via-[#7A1525] to-[#8A1F35] rounded-lg shadow-lg flex items-center justify-center transform hover:scale-105 transition-transform duration-300">
-                    <span className="text-white font-serif font-bold text-lg">SE</span>
+                  <img
+                    src="/logo.jpg"
+                    alt="Thrayam Threads Logo"
+                    className="w-12 h-12 object-contain transform hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#5A0F1B] via-[#7A1525] to-[#8A1F35] rounded-lg shadow-lg items-center justify-center transform hover:scale-105 transition-transform duration-300 hidden">
+                    <span className="text-white font-serif font-bold text-lg">TT</span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-base font-serif font-bold bg-gradient-to-r from-[#5A0F1B] to-[#5A0F1B] bg-clip-text text-transparent tracking-wider leading-tight">
-                      SAREE
+                      THRAYAM
                     </span>
                     <span className="text-xs font-serif font-semibold text-gray-600 tracking-widest leading-tight">
-                      ELEGANCE
+                      THREADS
                     </span>
                   </div>
                 </div>
@@ -172,11 +181,20 @@ const Navbar = ({ onCartOpen }) => {
             {/* Mobile Logo */}
             <Link to="/" className="flex lg:hidden items-center">
               <div className="flex items-center space-x-2">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#5A0F1B] via-[#7A1525] to-[#8A1F35] rounded-lg shadow-lg flex items-center justify-center">
-                  <span className="text-white font-serif font-bold text-base">SE</span>
+                <img
+                  src="/logo.jpg"
+                  alt="Thrayam Threads Logo"
+                  className="w-10 h-10 object-contain"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+                <div className="w-10 h-10 bg-gradient-to-br from-[#5A0F1B] via-[#7A1525] to-[#8A1F35] rounded-lg shadow-lg items-center justify-center hidden">
+                  <span className="text-white font-serif font-bold text-base">TT</span>
                 </div>
                 <span className="text-sm font-serif font-bold bg-gradient-to-r from-[#5A0F1B] to-[#5A0F1B] bg-clip-text text-transparent">
-                  SAREE ELEGANCE
+                  THRAYAM THREADS
                 </span>
               </div>
             </Link>

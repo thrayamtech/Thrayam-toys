@@ -36,6 +36,7 @@ app.use('/api/coupons', require('./src/routes/couponRoutes'));
 app.use('/api/wallet', require('./src/routes/walletRoutes'));
 app.use('/api/referral', require('./src/routes/referralRoutes'));
 app.use('/api/loyalty', require('./src/routes/loyaltyRoutes'));
+app.use('/api/analytics', require('./src/routes/analytics'));
 
 // Health check route
 app.get('/api/health', (req, res) => {

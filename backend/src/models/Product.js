@@ -70,7 +70,8 @@ const productSchema = new mongoose.Schema({
   }],
   images: [{
     url: String,
-    alt: String
+    alt: String,
+    key: String  // S3 key for image deletion
   }],
   mainImageIndex: {
     type: Number,

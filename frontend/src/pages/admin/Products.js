@@ -23,8 +23,8 @@ const AdminProducts = () => {
     length: '',
     width: '',
     weight: '',
-    colors: '',
-    sizes: '',
+    colors: [],  // Changed to array
+    sizes: [],   // Changed to array
     isFeatured: false,
     images: []
   });
@@ -32,6 +32,17 @@ const AdminProducts = () => {
   const [previewImages, setPreviewImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
   const [mainImageIndex, setMainImageIndex] = useState(0);
+  const [colorName, setColorName] = useState('');
+  const [colorHex, setColorHex] = useState('#000000');
+
+  // Fabric options matching backend enum
+  const fabricOptions = [
+    'Cotton', 'Silk', 'Mul Mul Cotton', 'Kanjivaram Silk', 'Banarasi',
+    'Georgette', 'Chiffon', 'Linen', 'Art Silk', 'Net', 'Satin', 'Crepe', 'Other'
+  ];
+
+  // Size options matching backend enum
+  const sizeOptions = ['Free Size', 'S', 'M', 'L', 'XL', 'XXL'];
 
   useEffect(() => {
     fetchProducts();
@@ -89,6 +100,22 @@ const AdminProducts = () => {
     setExistingImages(existingImages.filter(img => img._id !== imageId));
   };
 
+  const moveExistingImage = (fromIndex, toIndex) => {
+    const newExisting = [...existingImages];
+    const [movedItem] = newExisting.splice(fromIndex, 1);
+    newExisting.splice(toIndex, 0, movedItem);
+    setExistingImages(newExisting);
+
+    // Adjust main image index if needed
+    if (mainImageIndex === fromIndex) {
+      setMainImageIndex(toIndex);
+    } else if (fromIndex < mainImageIndex && toIndex >= mainImageIndex) {
+      setMainImageIndex(mainImageIndex - 1);
+    } else if (fromIndex > mainImageIndex && toIndex <= mainImageIndex) {
+      setMainImageIndex(mainImageIndex + 1);
+    }
+  };
+
   const setAsMainImage = (index) => {
     setMainImageIndex(index);
   };
@@ -123,10 +150,12 @@ const AdminProducts = () => {
       // Append all form fields
       Object.keys(formData).forEach(key => {
         if (key !== 'images') {
-          if (key === 'colors' || key === 'sizes') {
-            // Convert comma-separated strings to arrays
-            const arrayValue = formData[key].split(',').map(item => item.trim()).filter(item => item);
-            submitData.append(key, JSON.stringify(arrayValue));
+          if (key === 'colors') {
+            // Colors is already an array of {name, hexCode} objects
+            submitData.append(key, JSON.stringify(formData[key]));
+          } else if (key === 'sizes') {
+            // Sizes is already an array
+            submitData.append(key, JSON.stringify(formData[key]));
           } else {
             submitData.append(key, formData[key]);
           }
@@ -141,9 +170,9 @@ const AdminProducts = () => {
       // Append main image index
       submitData.append('mainImageIndex', mainImageIndex);
 
-      // If editing, send existing images that should be kept
+      // If editing, send existing images that should be kept (full objects with url, key, alt)
       if (editingProduct) {
-        submitData.append('existingImages', JSON.stringify(existingImages.map(img => img._id || img.url)));
+        submitData.append('existingImages', JSON.stringify(existingImages));
       }
 
       if (editingProduct) {
@@ -162,7 +191,18 @@ const AdminProducts = () => {
       resetForm();
       fetchProducts();
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to save product');
+      // Parse and display validation errors
+      if (error.response?.data?.errors) {
+        const errorMessages = Object.values(error.response.data.errors)
+          .map(err => err.message)
+          .join(', ');
+        toast.error(`Validation Error: ${errorMessages}`);
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error('Failed to save product');
+      }
+      console.error('Product save error:', error.response?.data);
     }
   };
 
@@ -188,11 +228,11 @@ const AdminProducts = () => {
       category: product.category?._id || '',
       stock: product.stock || '',
       fabric: product.fabric || '',
-      length: product.length || '',
-      width: product.width || '',
-      weight: product.weight || '',
-      colors: Array.isArray(product.colors) ? product.colors.join(', ') : '',
-      sizes: Array.isArray(product.sizes) ? product.sizes.join(', ') : '',
+      length: product.specifications?.length || '',
+      width: product.specifications?.width || '',
+      weight: product.specifications?.weight || '',
+      colors: Array.isArray(product.colors) ? product.colors : [],
+      sizes: Array.isArray(product.sizes) ? product.sizes : [],
       isFeatured: product.isFeatured || false,
       images: product.images || []
     });
@@ -201,6 +241,43 @@ const AdminProducts = () => {
     setImageFiles([]);
     setMainImageIndex(product.mainImageIndex || 0);
     setShowModal(true);
+  };
+
+  // Add color to list
+  const addColor = () => {
+    if (colorName.trim() && colorHex) {
+      setFormData({
+        ...formData,
+        colors: [...formData.colors, { name: colorName.trim(), hexCode: colorHex }]
+      });
+      setColorName('');
+      setColorHex('#000000');
+    } else {
+      toast.error('Please enter both color name and hex code');
+    }
+  };
+
+  // Remove color from list
+  const removeColor = (index) => {
+    setFormData({
+      ...formData,
+      colors: formData.colors.filter((_, i) => i !== index)
+    });
+  };
+
+  // Toggle size selection
+  const toggleSize = (size) => {
+    if (formData.sizes.includes(size)) {
+      setFormData({
+        ...formData,
+        sizes: formData.sizes.filter(s => s !== size)
+      });
+    } else {
+      setFormData({
+        ...formData,
+        sizes: [...formData.sizes, size]
+      });
+    }
   };
 
   const resetForm = () => {
@@ -215,8 +292,8 @@ const AdminProducts = () => {
       length: '',
       width: '',
       weight: '',
-      colors: '',
-      sizes: '',
+      colors: [],
+      sizes: [],
       isFeatured: false,
       images: []
     });
@@ -225,6 +302,8 @@ const AdminProducts = () => {
     setPreviewImages([]);
     setExistingImages([]);
     setMainImageIndex(0);
+    setColorName('');
+    setColorHex('#000000');
   };
 
   const filteredProducts = products.filter(product => {
@@ -454,15 +533,19 @@ const AdminProducts = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Fabric
+                    Fabric *
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.fabric}
                     onChange={(e) => setFormData({ ...formData, fabric: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
-                    placeholder="Cotton, Silk, etc."
-                  />
+                    required
+                  >
+                    <option value="">Select Fabric</option>
+                    {fabricOptions.map(fabric => (
+                      <option key={fabric} value={fabric}>{fabric}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
@@ -544,30 +627,87 @@ const AdminProducts = () => {
                   />
                 </div>
 
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Colors (comma-separated)
+                    Colors
                   </label>
-                  <input
-                    type="text"
-                    value={formData.colors}
-                    onChange={(e) => setFormData({ ...formData, colors: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
-                    placeholder="Red, Blue, Green"
-                  />
+                  <div className="space-y-3">
+                    {/* Add new color */}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={colorName}
+                        onChange={(e) => setColorName(e.target.value)}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
+                        placeholder="Color name (e.g., Red)"
+                      />
+                      <input
+                        type="color"
+                        value={colorHex}
+                        onChange={(e) => setColorHex(e.target.value)}
+                        className="w-16 h-10 border border-gray-300 rounded-lg cursor-pointer"
+                      />
+                      <button
+                        type="button"
+                        onClick={addColor}
+                        className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition"
+                      >
+                        Add
+                      </button>
+                    </div>
+
+                    {/* Display added colors */}
+                    {formData.colors.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {formData.colors.map((color, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full"
+                          >
+                            <div
+                              className="w-4 h-4 rounded-full border border-gray-300"
+                              style={{ backgroundColor: color.hexCode }}
+                            ></div>
+                            <span className="text-sm">{color.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => removeColor(index)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <div>
+                <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Sizes (comma-separated)
+                    Available Sizes
                   </label>
-                  <input
-                    type="text"
-                    value={formData.sizes}
-                    onChange={(e) => setFormData({ ...formData, sizes: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
-                    placeholder="S, M, L, XL"
-                  />
+                  <div className="flex flex-wrap gap-2">
+                    {sizeOptions.map(size => (
+                      <button
+                        key={size}
+                        type="button"
+                        onClick={() => toggleSize(size)}
+                        className={`px-4 py-2 rounded-lg border-2 transition ${
+                          formData.sizes.includes(size)
+                            ? 'border-amber-500 bg-amber-50 text-amber-700'
+                            : 'border-gray-300 bg-white text-gray-700 hover:border-amber-300'
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                  {formData.sizes.length > 0 && (
+                    <p className="text-sm text-gray-600 mt-2">
+                      Selected: {formData.sizes.join(', ')}
+                    </p>
+                  )}
                 </div>
 
                 <div className="md:col-span-2">
@@ -619,6 +759,25 @@ const AdminProducts = () => {
                             >
                               ×
                             </button>
+                            {/* Reorder arrows */}
+                            {index > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => moveExistingImage(index, index - 1)}
+                                className="absolute left-1 top-1/2 -translate-y-1/2 bg-gray-700 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                              >
+                                ←
+                              </button>
+                            )}
+                            {index < existingImages.length - 1 && (
+                              <button
+                                type="button"
+                                onClick={() => moveExistingImage(index, index + 1)}
+                                className="absolute right-1 top-1/2 -translate-y-1/2 bg-gray-700 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                              >
+                                →
+                              </button>
+                            )}
                           </div>
                         ))}
                       </div>

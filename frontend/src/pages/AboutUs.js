@@ -24,7 +24,7 @@ const AboutUs = () => {
               </h2>
               <div className="space-y-4 text-gray-700 leading-relaxed">
                 <p>
-                  Welcome to <span className="font-semibold text-amber-700">Saree Elegance</span>,
+                  Welcome to <span className="font-semibold text-amber-700">Thrayam Threads</span>,
                   where tradition meets elegance. We are passionate about bringing you the finest
                   collection of sarees from across India, each piece carefully curated to celebrate
                   the rich heritage and craftsmanship of Indian textiles.

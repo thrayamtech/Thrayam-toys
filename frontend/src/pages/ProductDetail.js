@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { FaStar, FaHeart, FaShoppingCart, FaCheck, FaMinus, FaPlus } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import API from '../utils/api';
+import analytics from '../utils/analytics';
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const location = useLocation();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -22,6 +24,15 @@ const ProductDetail = () => {
     fetchProduct();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  // Track product view
+  useEffect(() => {
+    if (product) {
+      const searchParams = new URLSearchParams(location.search);
+      const source = searchParams.get('source') || 'direct';
+      analytics.trackProductView(product._id, source);
+    }
+  }, [product, location]);
 
   const fetchProduct = async () => {
     try {
@@ -70,6 +81,10 @@ const ProductDetail = () => {
 
     try {
       await addToCart(product._id, quantityToAdd, selectedSize || 'Free Size', selectedColor || 'Default');
+
+      // Track add to cart action
+      analytics.trackAddToCart(product._id, product.name, quantityToAdd);
+
       toast.success('Added to cart!');
     } catch (error) {
       console.error('Add to cart error:', error);

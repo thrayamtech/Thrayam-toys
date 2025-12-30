@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaTachometerAlt, FaBoxes, FaShoppingCart, FaUsers, FaTags, FaTicketAlt, FaBars, FaTimes, FaSignOutAlt, FaChartLine, FaImages, FaCog, FaGift, FaWallet } from 'react-icons/fa';
+import { FaTachometerAlt, FaBoxes, FaShoppingCart, FaUsers, FaTags, FaTicketAlt, FaBars, FaTimes, FaSignOutAlt, FaChartLine, FaImages, FaCog, FaGift, FaWallet, FaChartBar } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const AdminLayout = ({ children }) => {
@@ -26,6 +26,7 @@ const AdminLayout = ({ children }) => {
     { path: '/admin/sliders', icon: FaImages, label: 'Sliders' },
     { path: '/admin/settings', icon: FaCog, label: 'Settings' },
     { path: '/admin/reports', icon: FaChartLine, label: 'Reports' },
+    { path: '/admin/analytics', icon: FaChartBar, label: 'Analytics' },
   ];
 
   const isActive = (path, exact = false) => {

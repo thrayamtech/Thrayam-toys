@@ -46,13 +46,26 @@ const Profile = () => {
   const fetchProfile = async () => {
     try {
       const { data } = await API.get('/auth/profile');
+
+      // Helper function to check if data is dummy/temp
+      const isDummyName = (name) => name && name.startsWith('User_');
+      const isDummyEmail = (email) => email && email.endsWith('@temp.com');
+
       setProfileData({
-        name: data.user.name || '',
-        email: data.user.email || '',
+        name: isDummyName(data.user.name) ? '' : (data.user.name || ''),
+        email: isDummyEmail(data.user.email) ? '' : (data.user.email || ''),
         phone: data.user.phone || ''
       });
       setAddresses(data.user.addresses || []);
       updateUser(data.user);
+
+      // Auto-enable editing for new users with dummy data
+      if (isDummyName(data.user.name) || isDummyEmail(data.user.email)) {
+        setEditingProfile(true);
+        toast.info('Please update your profile with your real name and email', {
+          autoClose: 5000
+        });
+      }
     } catch (error) {
       console.error('Error fetching profile:', error);
       toast.error('Failed to load profile');
@@ -192,11 +205,15 @@ const Profile = () => {
               <div className="text-center mb-6">
                 <div className="w-24 h-24 mx-auto bg-gradient-to-br from-amber-700 via-amber-600 to-amber-800 rounded-full flex items-center justify-center mb-3 shadow-lg">
                   <span className="text-4xl font-bold text-white">
-                    {user?.name?.charAt(0).toUpperCase()}
+                    {user?.name && !user.name.startsWith('User_') ? user.name.charAt(0).toUpperCase() : <FaUser />}
                   </span>
                 </div>
-                <h3 className="font-semibold text-gray-900 text-lg">{user?.name}</h3>
-                <p className="text-sm text-gray-600">{user?.email}</p>
+                <h3 className="font-semibold text-gray-900 text-lg">
+                  {user?.name && !user.name.startsWith('User_') ? user.name : 'Complete Your Profile'}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {user?.email && !user.email.endsWith('@temp.com') ? user.email : user?.phone}
+                </p>
               </div>
 
               {/* Navigation Tabs */}
@@ -279,10 +296,17 @@ const Profile = () => {
                       <input
                         type="email"
                         value={profileData.email}
-                        disabled
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
+                        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                        disabled={!editingProfile || (user?.email && !user.email.endsWith('@temp.com'))}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 disabled:bg-gray-50 disabled:text-gray-600 disabled:cursor-not-allowed transition-all"
+                        placeholder="Enter your email address"
+                        required
                       />
-                      <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {user?.email && !user.email.endsWith('@temp.com')
+                          ? 'Email cannot be changed once set'
+                          : 'Please provide a valid email address'}
+                      </p>
                     </div>
 
                     <div>
@@ -292,12 +316,11 @@ const Profile = () => {
                       <input
                         type="tel"
                         value={profileData.phone}
-                        onChange={(e) => setProfileData({ ...profileData, phone: e.target.value.replace(/\D/g, '').slice(0, 10) })}
-                        disabled={!editingProfile}
+                        disabled
                         maxLength="10"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 disabled:bg-gray-50 disabled:text-gray-600 transition-all"
-                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 cursor-not-allowed"
                       />
+                      <p className="text-xs text-gray-500 mt-1">Phone number is verified and cannot be changed</p>
                     </div>
 
                     {editingProfile && (

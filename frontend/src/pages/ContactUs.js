@@ -59,8 +59,8 @@ const ContactUs = () => {
             </div>
             <h3 className="text-lg font-bold text-gray-800 mb-2">Call Us</h3>
             <p className="text-sm text-gray-600 mb-2">Mon-Sat (10 AM - 7 PM)</p>
-            <a href="tel:+919744707060" className="text-[#5A0F1B] font-semibold hover:text-[#7A1525]">
-              +91 97447 07060
+            <a href="tel:+918807259471" className="text-[#5A0F1B] font-semibold hover:text-[#7A1525]">
+              +91 88072 59471
             </a>
           </div>
 
@@ -70,8 +70,8 @@ const ContactUs = () => {
             </div>
             <h3 className="text-lg font-bold text-gray-800 mb-2">Email Us</h3>
             <p className="text-sm text-gray-600 mb-2">We'll respond within 24 hours</p>
-            <a href="mailto:[email protected]" className="text-[#5A0F1B] font-semibold hover:text-[#7A1525]">
-              [email protected]
+            <a href="mailto:info@thrayamthreads.com" className="text-[#5A0F1B] font-semibold hover:text-[#7A1525]">
+              info@thrayamthreads.com
             </a>
           </div>
 
@@ -82,7 +82,7 @@ const ContactUs = () => {
             <h3 className="text-lg font-bold text-gray-800 mb-2">WhatsApp</h3>
             <p className="text-sm text-gray-600 mb-2">Chat with us instantly</p>
             <a
-              href="https://wa.me/919744707060"
+              href="https://wa.me/918807259471"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#5A0F1B] font-semibold hover:text-[#7A1525]"
@@ -219,9 +219,10 @@ const ContactUs = () => {
                 <div>
                   <h3 className="text-lg font-bold text-gray-800 mb-2">Our Office</h3>
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    123, Silk Market Street,<br />
-                    Textile Hub, Bangalore,<br />
-                    Karnataka - 560001, India
+                    11/109/2, Edavattam,<br />
+                    Thirunanthikarai, Kulasekharam,<br />
+                    Kanyakumari Dist - 629161,<br />
+                    Tamilnadu, India
                   </p>
                 </div>
               </div>

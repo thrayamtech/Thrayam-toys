@@ -1,6 +1,7 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { useCart } from './context/CartContext';
+import analytics from './utils/analytics';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -41,9 +42,40 @@ import AdminSettings from './pages/admin/Settings';
 import AdminReports from './pages/admin/Reports';
 import LoyaltySettings from './pages/admin/LoyaltySettings';
 import ReferralTracking from './pages/admin/ReferralTracking';
+import Analytics from './pages/admin/Analytics';
 
 function AppContent() {
   const { isCartSidebarOpen, setIsCartSidebarOpen } = useCart();
+  const location = useLocation();
+
+  // Initialize analytics on mount
+  useEffect(() => {
+    analytics.init();
+  }, []);
+
+  // Track page views on route change
+  useEffect(() => {
+    const pageTitles = {
+      '/': 'Home',
+      '/products': 'Products',
+      '/cart': 'Shopping Cart',
+      '/checkout': 'Checkout',
+      '/login': 'Login',
+      '/register': 'Register',
+      '/profile': 'My Profile',
+      '/orders': 'My Orders',
+      '/wishlist': 'Wishlist',
+      '/wallet': 'Wallet',
+      '/refer': 'Refer a Friend',
+      '/categories': 'Categories',
+      '/about': 'About Us',
+      '/blogs': 'Blogs',
+      '/contact': 'Contact Us'
+    };
+
+    const title = pageTitles[location.pathname] || document.title;
+    analytics.trackPageView(location.pathname, title);
+  }, [location]);
 
   return (
     <Routes>
@@ -129,6 +161,14 @@ function AppContent() {
               element={
                 <AdminRoute>
                   <LoyaltySettings />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <AdminRoute>
+                  <Analytics />
                 </AdminRoute>
               }
             />

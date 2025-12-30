@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import API from '../utils/api';
 import { toast } from 'react-toastify';
+import analytics from '../utils/analytics';
 
 // AddressForm component - moved outside to prevent recreation on every render
 const AddressForm = ({ address, onChange, title }) => (
@@ -163,6 +164,19 @@ const CheckoutSteps = () => {
   const [pointsToUse, setPointsToUse] = useState(0);
   const [pointsDiscount, setPointsDiscount] = useState(0);
   const [loyaltySettings, setLoyaltySettings] = useState(null);
+
+  // Track checkout start when user enters payment step
+  useEffect(() => {
+    if (currentStep === 2 && cart && cart.items && cart.items.length > 0) {
+      const subtotal = getCartTotal();
+      const shipping = subtotal > 999 ? 0 : 50;
+      const discount = appliedCoupon ? appliedCoupon.discountAmount : 0;
+      const total = subtotal + shipping - discount - pointsDiscount;
+
+      analytics.trackCheckout(total, cart.items.length);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep]);
 
   useEffect(() => {
     if (!cart || !cart.items || cart.items.length === 0) {
@@ -808,6 +822,9 @@ const CheckoutSteps = () => {
       if (paymentMethod !== 'COD') {
         await handleRazorpayPayment(data.razorpayOrderId, data.totalPrice, data._id);
       } else {
+        // Track purchase completion
+        analytics.trackPurchase(data._id, data.totalPrice, cart.items.length);
+
         toast.success('Order placed successfully!');
         await clearCart();
         navigate(`/orders/${data._id}`);

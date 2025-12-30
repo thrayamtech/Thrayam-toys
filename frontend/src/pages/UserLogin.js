@@ -40,16 +40,15 @@ const UserLogin = () => {
       // Check if user exists
       const { data } = await API.post('/auth/check-mobile', { phone: mobileNumber });
 
-      if (!data.exists) {
-        toast.error('No account found with this mobile number. Please register first.');
-        setLoading(false);
-        return;
-      }
-
-      setUserExists(true);
+      setUserExists(data.exists);
       setOtpSent(true);
       setTimer(60);
-      toast.success(`OTP sent to ${mobileNumber}. Use 1234 for testing.`);
+
+      if (data.exists) {
+        toast.success(`Welcome back! OTP sent to ${mobileNumber}. Use 1234 for testing.`);
+      } else {
+        toast.success(`New user! OTP sent to ${mobileNumber}. Use 1234 for testing.`);
+      }
     } catch (error) {
       console.error('Send OTP error:', error);
       toast.error('Failed to send OTP. Please try again.');
@@ -74,17 +73,35 @@ const UserLogin = () => {
 
     setLoading(true);
     try {
-      // Login user with OTP
-      const { data } = await API.post('/auth/login-otp', {
-        phone: mobileNumber,
-        otp: otp
-      });
+      let response;
+
+      if (userExists) {
+        // Existing user - Login
+        response = await API.post('/auth/login-otp', {
+          phone: mobileNumber,
+          otp: otp
+        });
+        toast.success('Welcome back!');
+      } else {
+        // New user - Register with OTP
+        response = await API.post('/auth/register-otp', {
+          phone: mobileNumber,
+          otp: otp
+        });
+        toast.success('Account created successfully! Please update your profile.');
+      }
 
       // Update AuthContext immediately
-      setAuthData(data.token, data.user);
+      setAuthData(response.data.token, response.data.user);
 
-      toast.success('Login successful!');
-      navigate('/');
+      // Navigate based on user type
+      if (response.data.user.isNewUser) {
+        // New user - redirect to profile update
+        navigate('/profile');
+      } else {
+        // Existing user - redirect to home
+        navigate('/');
+      }
     } catch (error) {
       console.error('Verify OTP error:', error);
       const errorMsg = error.response?.data?.message || 'Failed to verify OTP';

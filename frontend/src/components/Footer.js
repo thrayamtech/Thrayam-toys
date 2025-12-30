@@ -11,7 +11,7 @@ const Footer = () => {
           {/* Company Info */}
           <div>
             <h3 className="text-2xl font-serif font-bold text-white mb-4 bg-gradient-to-r from-[#8A1F35] to-[#5A0F1B] bg-clip-text text-transparent">
-              Saree Elegance
+              Thrayam Threads
             </h3>
             <p className="text-gray-400 mb-4 leading-relaxed">
               Your one-stop destination for exquisite traditional and contemporary sarees. We bring you the finest collection of handcrafted sarees from across India.
@@ -116,25 +116,26 @@ const Footer = () => {
               <li className="flex items-start">
                 <FaMapMarkerAlt className="text-[#8A1F35] mt-1 mr-3 flex-shrink-0" />
                 <span className="text-sm">
-                  123 Saree Street, Fashion District,<br />
-                  Mumbai, Maharashtra 400001
+                  11/109/2, Edavattam, Thirunanthikarai,<br />
+                  Kulasekharam, Kanyakumari Dist,<br />
+                  629161, Tamilnadu
                 </span>
               </li>
               <li className="flex items-center">
                 <FaPhone className="text-[#8A1F35] mr-3 flex-shrink-0" />
-                <a href="tel:+919744707060" className="hover:text-[#8A1F35] transition text-sm">
-                  +91 97447 07060
+                <a href="tel:+918807259471" className="hover:text-[#8A1F35] transition text-sm">
+                  +91 88072 59471
                 </a>
               </li>
               <li className="flex items-center">
                 <FaEnvelope className="text-[#8A1F35] mr-3 flex-shrink-0" />
-                <a href="mailto:[email protected]" className="hover:text-[#8A1F35] transition text-sm">
-                  [email protected]
+                <a href="mailto:info@thrayamthreads.com" className="hover:text-[#8A1F35] transition text-sm">
+                  info@thrayamthreads.com
                 </a>
               </li>
               <li className="flex items-center">
                 <FaWhatsapp className="text-[#8A1F35] mr-3 flex-shrink-0" />
-                <a href="https://wa.me/919744707060" target="_blank" rel="noopener noreferrer" className="hover:text-[#8A1F35] transition text-sm">
+                <a href="https://wa.me/918807259471" target="_blank" rel="noopener noreferrer" className="hover:text-[#8A1F35] transition text-sm">
                   Chat on WhatsApp
                 </a>
               </li>
@@ -169,7 +170,7 @@ const Footer = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center text-sm">
             <p className="text-gray-400 mb-2 md:mb-0">
-              © 2025 Saree Elegance. All rights reserved.
+              © 2025 Thrayam Threads. All rights reserved.
             </p>
             <div className="flex items-center text-gray-400">
               <span>Made with</span>
