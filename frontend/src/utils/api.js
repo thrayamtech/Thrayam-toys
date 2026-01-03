@@ -26,9 +26,16 @@ API.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      // Only redirect to login if user was authenticated (had a token)
+      const hadToken = localStorage.getItem('token');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+
+      // Only redirect if user was previously authenticated
+      // Don't redirect guest users who are just browsing
+      if (hadToken) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
