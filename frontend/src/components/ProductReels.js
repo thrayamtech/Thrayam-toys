@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { FaPlay, FaPause, FaVolumeMute, FaVolumeUp, FaTimes, FaChevronLeft, FaChevronRight, FaShoppingCart } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 import { toast } from 'react-toastify';
+import { getProductImage, handleImageError } from '../utils/imageHelper';
 
 const ProductReels = ({ reels }) => {
   const [selectedReelIndex, setSelectedReelIndex] = useState(null);
@@ -464,9 +465,10 @@ const ProductReels = ({ reels }) => {
                   <div className="flex items-center gap-2">
                     {/* Product Image - Small */}
                     <img
-                      src={selectedReel.product?.images?.[0]}
+                      src={getProductImage(selectedReel.product, 0)}
                       alt={selectedReel.product?.name}
                       className="w-10 h-10 object-cover rounded-md flex-shrink-0 border border-white/20"
+                      onError={(e) => handleImageError(e, 'product')}
                     />
 
                     {/* Product Info - Minimal */}

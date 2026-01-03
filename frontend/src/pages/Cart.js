@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaTrash, FaMinus, FaPlus, FaShoppingBag, FaArrowRight } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 import { toast } from 'react-toastify';
+import { getProductImage, handleImageError } from '../utils/imageHelper';
 
 const Cart = () => {
   const { cart, loading, updateCartItem, removeFromCart, getCartTotal } = useCart();
@@ -96,9 +97,10 @@ const Cart = () => {
                 {/* Product Image */}
                 <Link to={`/products/${item.product?._id}`} className="flex-shrink-0">
                   <img
-                    src={item.product?.images?.[0] || '/placeholder.jpg'}
+                    src={getProductImage(item.product, 0)}
                     alt={item.product?.name}
                     className="w-24 h-24 md:w-28 md:h-28 object-cover"
+                    onError={(e) => handleImageError(e, 'product')}
                   />
                 </Link>
 

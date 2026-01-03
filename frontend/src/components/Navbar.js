@@ -157,12 +157,6 @@ const Navbar = ({ onCartOpen }) => {
                   About
                 </Link>
                 <Link
-                  to="/blogs"
-                  className="text-gray-700 hover:text-[#5A0F1B] font-medium transition-colors duration-300 text-sm"
-                >
-                  Blogs
-                </Link>
-                <Link
                   to="/contact"
                   className="text-gray-700 hover:text-[#5A0F1B] font-medium transition-colors duration-300 text-sm"
                 >
@@ -382,7 +376,7 @@ const Navbar = ({ onCartOpen }) => {
                       {/* Not Logged In */}
                       <div className="p-5">
                         <div className="text-center mb-4">
-                          <p className="text-sm font-semibold text-gray-800 mb-1">Welcome to Saree Elegance</p>
+                          <p className="text-sm font-semibold text-gray-800 mb-1">Welcome to Thrayam Threads</p>
                           <p className="text-xs text-gray-600">Login or register with your mobile number</p>
                         </div>
                         <Link
@@ -460,13 +454,6 @@ const Navbar = ({ onCartOpen }) => {
                 onClick={() => setIsOpen(false)}
               >
                 About Us
-              </Link>
-              <Link
-                to="/blogs"
-                className="text-gray-700 hover:text-[#5A0F1B] font-medium py-2.5 px-3 rounded-lg hover:bg-[#5A0F1B]/10 transition-colors duration-200"
-                onClick={() => setIsOpen(false)}
-              >
-                Blogs
               </Link>
               <Link
                 to="/contact"

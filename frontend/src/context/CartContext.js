@@ -65,7 +65,6 @@ export const CartProvider = ({ children }) => {
           color
         });
         setCart(data.cart);
-        toast.success('Item added to cart');
         setIsCartSidebarOpen(true);
         return data;
       } else {
@@ -98,7 +97,6 @@ export const CartProvider = ({ children }) => {
 
         localStorage.setItem('guestCart', JSON.stringify(guestCart));
         setCart(guestCart);
-        toast.success('Item added to cart');
         setIsCartSidebarOpen(true);
         return { cart: guestCart };
       }
@@ -134,7 +132,6 @@ export const CartProvider = ({ children }) => {
       if (isAuthenticated) {
         const { data } = await API.put(`/cart/${itemId}`, { quantity });
         setCart(data.cart);
-        toast.success('Cart updated');
         return data;
       } else {
         // Guest user - update localStorage
@@ -145,7 +142,6 @@ export const CartProvider = ({ children }) => {
           guestCart.items[itemIndex].quantity = quantity;
           localStorage.setItem('guestCart', JSON.stringify(guestCart));
           setCart(guestCart);
-          toast.success('Cart updated');
         }
         return { cart: guestCart };
       }
@@ -161,7 +157,6 @@ export const CartProvider = ({ children }) => {
       if (isAuthenticated) {
         const { data } = await API.delete(`/cart/${itemId}`);
         setCart(data.cart);
-        toast.success('Item removed from cart');
         return data;
       } else {
         // Guest user - update localStorage
@@ -169,7 +164,6 @@ export const CartProvider = ({ children }) => {
         guestCart.items = guestCart.items.filter(item => item._id !== itemId);
         localStorage.setItem('guestCart', JSON.stringify(guestCart));
         setCart(guestCart);
-        toast.success('Item removed from cart');
         return { cart: guestCart };
       }
     } catch (error) {
@@ -184,12 +178,10 @@ export const CartProvider = ({ children }) => {
       if (isAuthenticated) {
         const { data } = await API.delete('/cart');
         setCart(data.cart);
-        toast.success('Cart cleared');
         return data;
       } else {
         localStorage.removeItem('guestCart');
         setCart({ items: [] });
-        toast.success('Cart cleared');
         return { cart: { items: [] } };
       }
     } catch (error) {

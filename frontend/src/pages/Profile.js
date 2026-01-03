@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { FaUser, FaMapMarkerAlt, FaEdit, FaSave, FaTimes, FaPlus, FaTrash, FaStar, FaLock, FaShieldAlt } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import API from '../utils/api';
@@ -12,6 +12,7 @@ const Profile = () => {
   const [addresses, setAddresses] = useState([]);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
+  const hasShownToast = useRef(false);
 
   // Profile form data
   const [profileData, setProfileData] = useState({
@@ -56,8 +57,10 @@ const Profile = () => {
       updateUser(data.user);
 
       // Auto-enable editing for new users with dummy data
-      if (isDummyName(data.user.name) || isDummyEmail(data.user.email)) {
+      // Show toast only once using ref to prevent multiple toasts
+      if ((isDummyName(data.user.name) || isDummyEmail(data.user.email)) && !hasShownToast.current) {
         setEditingProfile(true);
+        hasShownToast.current = true;
         toast.info('Please update your profile with your real name and email', {
           autoClose: 5000
         });

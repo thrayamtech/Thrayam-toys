@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import API from '../utils/api';
 import analytics from '../utils/analytics';
+import { getProductImage, handleImageError } from '../utils/imageHelper';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -147,8 +148,9 @@ const ProductDetail = () => {
                     }`}
                   >
                     <img
-                      src={image.url}
+                      src={getProductImage(product, index)}
                       alt={`${product.name} ${index + 1}`}
+                      onError={(e) => handleImageError(e, 'product')}
                       className="w-full h-full object-cover"
                     />
                   </button>
@@ -164,8 +166,9 @@ const ProductDetail = () => {
                 onClick={() => setShowLightbox(true)}
               >
                 <img
-                  src={product.images?.[selectedImage]?.url || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600'}
+                  src={getProductImage(product, selectedImage)}
                   alt={product.name}
+                  onError={(e) => handleImageError(e, 'product')}
                   className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
                   style={{ maxHeight: '70vh' }}
                 />
@@ -435,8 +438,9 @@ const ProductDetail = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={product.images?.[selectedImage]?.url || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1200'}
+              src={getProductImage(product, selectedImage)}
               alt={product.name}
+              onError={(e) => handleImageError(e, 'product')}
               className="object-contain"
               style={{ maxHeight: '85vh', maxWidth: '90vw' }}
             />
@@ -466,8 +470,9 @@ const ProductDetail = () => {
                     }`}
                   >
                     <img
-                      src={image.url}
+                      src={getProductImage(product, index)}
                       alt={`Thumbnail ${index + 1}`}
+                      onError={(e) => handleImageError(e, 'product')}
                       className="w-full h-full object-cover"
                     />
                   </button>

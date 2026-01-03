@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaBox, FaShippingFast, FaCheckCircle, FaTruck, FaTimesCircle, FaChevronDown, FaChevronUp, FaDownload, FaExclamationCircle } from 'react-icons/fa';
 import API from '../utils/api';
 import { toast } from 'react-toastify';
+import { getProductImage, handleImageError } from '../utils/imageHelper';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -233,9 +234,10 @@ const Orders = () => {
                           <div key={index} className="flex gap-4 bg-white p-4 rounded-lg border border-gray-100 hover:border-amber-200 transition-colors">
                             <Link to={`/products/${item.product?._id}`} className="flex-shrink-0">
                               <img
-                                src={item.product?.images?.[0] || '/placeholder.jpg'}
+                                src={getProductImage(item.product, 0)}
                                 alt={item.product?.name}
                                 className="w-24 h-24 object-cover rounded-lg"
+                                onError={(e) => handleImageError(e, 'product')}
                               />
                             </Link>
                             <div className="flex-1 min-w-0">

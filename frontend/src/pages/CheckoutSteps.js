@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaLock, FaCheckCircle, FaCreditCard, FaMoneyBillWave, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { FaLock, FaCheckCircle, FaCreditCard, FaMoneyBillWave, FaArrowLeft, FaArrowRight, FaWhatsapp } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import API from '../utils/api';
 import { toast } from 'react-toastify';
 import analytics from '../utils/analytics';
+import { getProductImage, handleImageError } from '../utils/imageHelper';
 
 // AddressForm component - moved outside to prevent recreation on every render
 const AddressForm = ({ address, onChange, title }) => (
@@ -323,14 +324,19 @@ const CheckoutSteps = () => {
 
     setLoading(true);
     try {
-      const { data } = await API.post('/auth/check-mobile', { phone: mobileNumber });
+      // Send WhatsApp OTP for all users (new and existing)
+      const { data } = await API.post('/auth/send-whatsapp-otp', { phone: mobileNumber });
       setIsExistingUser(data.exists);
       setOtpSent(true);
 
-      // Simulate OTP send (in production, this would send actual OTP)
-      toast.success(`OTP sent to ${mobileNumber}. Use 1234 for testing.`);
+      if (data.exists) {
+        toast.success('Welcome back! OTP sent to your WhatsApp number.');
+      } else {
+        toast.success('New user! OTP sent to your WhatsApp number.');
+      }
     } catch (error) {
-      toast.error('Failed to send OTP');
+      const errorMsg = error.response?.data?.message || 'Failed to send OTP. Please try again.';
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -344,31 +350,26 @@ const CheckoutSteps = () => {
 
     setLoading(true);
     try {
-      let response;
-
-      if (isExistingUser) {
-        // Login with OTP
-        response = await API.post('/auth/login-otp', {
-          phone: mobileNumber,
-          otp: otp
-        });
-      } else {
-        // Register with OTP
-        response = await API.post('/auth/register-otp', {
-          phone: mobileNumber,
-          otp: otp
-        });
-      }
+      // Verify WhatsApp OTP for all users (handles both login and registration)
+      const response = await API.post('/auth/verify-whatsapp-otp', {
+        phone: mobileNumber,
+        otp: otp
+      });
 
       const { data } = response;
 
       // Set auth data
       setAuthData(data.token, data.user);
 
-      toast.success(isExistingUser ? 'Login successful!' : 'Account created successfully!');
+      // Show success message
+      if (data.user.isNewUser) {
+        toast.success('Account created successfully!');
+      } else {
+        toast.success('Welcome back!');
+      }
 
       // Fetch user profile and addresses
-      if (isExistingUser) {
+      if (!data.user.isNewUser) {
         // Existing user: fetch saved addresses
         await fetchUserAddresses();
       } else {
@@ -696,8 +697,8 @@ const CheckoutSteps = () => {
         key: keyData.key,
         amount: amount * 100,
         currency: 'INR',
-        name: 'Saree Elegance',
-        description: 'Purchase from Saree Elegance',
+        name: 'Thrayam Threads',
+        description: 'Purchase from Thrayam Threads',
         order_id: razorpayOrderId,
         handler: async function (response) {
           try {
@@ -973,7 +974,8 @@ const CheckoutSteps = () => {
                   </div>
                   <div className="mb-4 p-3 bg-gradient-to-r from-[#5A0F1B]/10 to-[#7A1525]/10 rounded-xl border border-[#5A0F1B]/20">
                     <p className="text-sm text-gray-700 text-center">
-                      Code sent to <span className="font-bold text-[#5A0F1B]">{mobileNumber}</span>
+                      <FaWhatsapp className="inline text-green-600 mr-1" />
+                      WhatsApp OTP sent to <span className="font-bold text-[#5A0F1B]">{mobileNumber}</span>
                     </p>
                   </div>
                   <div className="flex justify-center gap-3 mb-4">
@@ -1022,16 +1024,6 @@ const CheckoutSteps = () => {
                     'Verify & Continue'
                   )}
                 </button>
-
-                {/* Test OTP Info */}
-                <div className="mt-6 p-3 bg-gradient-to-r from-[#5A0F1B]/10 to-[#7A1525]/10 rounded-2xl border-2 border-[#5A0F1B]/30">
-                  <div className="flex items-center justify-center gap-3">
-                    <div className="w-2 h-2 bg-[#5A0F1B] rounded-full animate-pulse"></div>
-                    <p className="text-sm text-[#5A0F1B] text-center font-medium">
-                      Testing Mode: Use code <span className="font-bold text-[#5A0F1B] bg-white px-3 py-1 rounded-lg">1234</span>
-                    </p>
-                  </div>
-                </div>
               </div>
             )}
           </div>
@@ -1146,7 +1138,7 @@ const CheckoutSteps = () => {
                     <div className="space-y-2 max-h-[280px] overflow-y-auto">
                       {cart.items.map((item) => (
                         <div key={item._id} className="flex gap-3 p-3 bg-gray-50 rounded-lg">
-                          <img src={item.product?.images?.[0]} alt={item.product?.name} className="w-16 h-16 object-cover rounded-lg" />
+                          <img src={getProductImage(item.product, 0)} alt={item.product?.name} className="w-16 h-16 object-cover rounded-lg" onError={(e) => handleImageError(e, 'product')} />
                           <div className="flex-1 min-w-0">
                             <h4 className="text-sm font-medium text-gray-900 line-clamp-2">{item.product?.name}</h4>
                             <div className="flex items-center gap-2 text-xs text-gray-600 mt-1">

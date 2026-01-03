@@ -3,6 +3,7 @@ import { FaPlus, FaEdit, FaTrash, FaSearch, FaImage, FaTimes } from 'react-icons
 import { toast } from 'react-toastify';
 import AdminLayout from '../../components/AdminLayout';
 import API from '../../utils/api';
+import { getProductImage, handleImageError } from '../../utils/imageHelper';
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
@@ -73,6 +74,49 @@ const AdminProducts = () => {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
+    const currentTotal = (existingImages?.length || 0) + previewImages.length;
+    const remainingSlots = 10 - currentTotal;
+
+    // Check if adding new files would exceed limit
+    if (files.length > remainingSlots) {
+      toast.error(`You can only upload ${remainingSlots} more image(s). Maximum 10 images per product.`);
+
+      // Take only the files that fit
+      const allowedFiles = files.slice(0, remainingSlots);
+      if (allowedFiles.length === 0) return;
+
+      const newFiles = [...imageFiles, ...allowedFiles];
+      setImageFiles(newFiles);
+
+      const newPreviews = allowedFiles.map(file => ({
+        url: URL.createObjectURL(file),
+        isNew: true
+      }));
+      setPreviewImages([...previewImages, ...newPreviews]);
+
+      toast.info(`Added ${allowedFiles.length} image(s). Limit reached (10/10).`);
+      return;
+    }
+
+    // Check file sizes (5MB limit)
+    const oversizedFiles = files.filter(file => file.size > 5 * 1024 * 1024);
+    if (oversizedFiles.length > 0) {
+      toast.error(`${oversizedFiles.length} file(s) exceed 5MB limit and were skipped.`);
+      const validFiles = files.filter(file => file.size <= 5 * 1024 * 1024);
+      if (validFiles.length === 0) return;
+
+      const newFiles = [...imageFiles, ...validFiles];
+      setImageFiles(newFiles);
+
+      const newPreviews = validFiles.map(file => ({
+        url: URL.createObjectURL(file),
+        isNew: true
+      }));
+      setPreviewImages([...previewImages, ...newPreviews]);
+      return;
+    }
+
+    // All validations passed
     const newFiles = [...imageFiles, ...files];
     setImageFiles(newFiles);
 
@@ -379,9 +423,10 @@ const AdminProducts = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <img
-                            src={product.images?.[0]?.url || '/placeholder.jpg'}
+                            src={getProductImage(product, 0)}
                             alt={product.name}
                             className="w-12 h-12 object-cover rounded"
+                            onError={(e) => handleImageError(e, 'product')}
                           />
                           <div>
                             <p className="font-medium text-gray-800">{product.name}</p>
@@ -717,9 +762,17 @@ const AdminProducts = () => {
                     onChange={handleImageChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Click on an image to set it as main (shown on hover will be second image)
-                  </p>
+                  <div className="mt-1 space-y-1">
+                    <p className="text-xs text-gray-500">
+                      Click on an image to set it as main (shown on hover will be second image)
+                    </p>
+                    <p className="text-xs text-amber-600 font-medium">
+                      📸 Max 10 images per product • Max 5MB per image
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Current: {(existingImages?.length || 0) + (previewImages?.length || 0)} / 10 images
+                    </p>
+                  </div>
 
                   {/* Existing Images */}
                   {existingImages.length > 0 && (
@@ -729,8 +782,9 @@ const AdminProducts = () => {
                         {existingImages.map((img, index) => (
                           <div key={img._id || index} className="relative group">
                             <img
-                              src={img.url}
+                              src={img.url.startsWith('http') ? img.url : `http://localhost:5000${img.url}`}
                               alt={`Existing ${index + 1}`}
+                              onError={(e) => handleImageError(e, 'product')}
                               className={`w-full h-24 object-cover rounded border-2 cursor-pointer ${
                                 index === mainImageIndex && previewImages.length === 0
                                   ? 'border-amber-500'

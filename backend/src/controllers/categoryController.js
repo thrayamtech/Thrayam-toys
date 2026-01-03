@@ -52,7 +52,34 @@ exports.getCategory = async (req, res) => {
 // @access  Private/Admin
 exports.createCategory = async (req, res) => {
   try {
-    const category = await Category.create(req.body);
+    console.log('Create category - Request body:', req.body);
+
+    const { name, description } = req.body;
+
+    // Validate required fields
+    if (!name || name.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: 'Category name is required'
+      });
+    }
+
+    // Check if category already exists
+    const existingCategory = await Category.findOne({ name: name.trim() });
+    if (existingCategory) {
+      return res.status(400).json({
+        success: false,
+        message: 'Category with this name already exists'
+      });
+    }
+
+    // Create category
+    const category = await Category.create({
+      name: name.trim(),
+      description: description ? description.trim() : ''
+    });
+
+    console.log('Category created successfully:', category._id);
 
     res.status(201).json({
       success: true,
@@ -60,9 +87,10 @@ exports.createCategory = async (req, res) => {
       category
     });
   } catch (error) {
+    console.error('Create category error:', error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message || 'Failed to create category'
     });
   }
 };
@@ -72,6 +100,9 @@ exports.createCategory = async (req, res) => {
 // @access  Private/Admin
 exports.updateCategory = async (req, res) => {
   try {
+    console.log('Update category - Request body:', req.body);
+    console.log('Update category - ID:', req.params.id);
+
     let category = await Category.findById(req.params.id);
 
     if (!category) {
@@ -81,10 +112,32 @@ exports.updateCategory = async (req, res) => {
       });
     }
 
-    category = await Category.findByIdAndUpdate(req.params.id, req.body, {
+    const { name, description } = req.body;
+
+    // Check if name is being changed and if it already exists
+    if (name && name.trim() !== '' && name.trim() !== category.name) {
+      const existingCategory = await Category.findOne({ name: name.trim() });
+      if (existingCategory) {
+        return res.status(400).json({
+          success: false,
+          message: 'Category with this name already exists'
+        });
+      }
+    }
+
+    // Prepare update data
+    const updateData = {};
+    if (name && name.trim() !== '') updateData.name = name.trim();
+    if (description !== undefined) updateData.description = description ? description.trim() : '';
+
+    console.log('Update data:', updateData);
+
+    category = await Category.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true
     });
+
+    console.log('Category updated successfully:', category._id);
 
     res.status(200).json({
       success: true,
@@ -92,9 +145,10 @@ exports.updateCategory = async (req, res) => {
       category
     });
   } catch (error) {
+    console.error('Update category error:', error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message || 'Failed to update category'
     });
   }
 };
@@ -130,9 +184,10 @@ exports.deleteCategory = async (req, res) => {
       message: 'Category deleted successfully'
     });
   } catch (error) {
+    console.error('Delete category error:', error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message || 'Failed to delete category'
     });
   }
 };

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import API from '../utils/api';
+import { getSliderImage } from '../utils/imageHelper';
 
 const HeroSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -88,9 +89,7 @@ const HeroSlider = () => {
   return (
     <div className="relative h-[500px] md:h-[600px] overflow-hidden bg-gradient-to-r from-[#5A0F1B]/5 to-white">
       {slides.map((slide, index) => {
-        const imageUrl = slide.image.startsWith('http')
-          ? slide.image
-          : `${process.env.REACT_APP_API_URL}${slide.image}`;
+        const imageUrl = getSliderImage(slide);
 
         return (
           <div

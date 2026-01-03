@@ -4,6 +4,9 @@ const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI, {
       serverSelectionTimeoutMS: 5000,
+      tls: true,
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
     });
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
@@ -17,6 +20,9 @@ const connectDB = async () => {
       console.error('Authentication error: Please check your database credentials');
     } else if (error.message.includes('MongoServerError')) {
       console.error('Database error: Please check MongoDB Atlas configuration');
+    } else if (error.message.includes('SSL') || error.message.includes('TLS') || error.code?.includes('SSL')) {
+      console.error('SSL/TLS error: MongoDB connection encryption issue');
+      console.error('This may be caused by Node.js version compatibility with OpenSSL');
     }
 
     console.error('\nTroubleshooting steps:');

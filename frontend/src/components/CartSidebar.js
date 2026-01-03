@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaTimes, FaTrash, FaShoppingBag } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 import confetti from 'canvas-confetti';
+import { getProductImage, handleImageError } from '../utils/imageHelper';
 
 const CartSidebar = ({ isOpen, onClose }) => {
   const { cart, removeFromCart, updateQuantity, getCartTotal } = useCart();
@@ -82,9 +83,10 @@ const CartSidebar = ({ isOpen, onClose }) => {
                 {cart.items.map((item) => (
                   <div key={item._id} className="flex gap-4 bg-white border border-gray-200 rounded-lg p-3 hover:shadow-md transition">
                     <img
-                      src={item.product?.images?.[0]?.url || '/placeholder-saree.jpg'}
+                      src={getProductImage(item.product, 0)}
                       alt={item.product?.name}
                       className="w-20 h-20 object-cover rounded"
+                      onError={(e) => handleImageError(e, 'product')}
                     />
                     <div className="flex-1">
                       <h3 className="font-semibold text-sm text-gray-800 mb-1 line-clamp-2">

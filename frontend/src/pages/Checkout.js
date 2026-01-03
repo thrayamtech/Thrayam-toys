@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import API from '../utils/api';
 import { toast } from 'react-toastify';
+import { getProductImage, handleImageError } from '../utils/imageHelper';
 
 const Checkout = () => {
   const { cart, getCartTotal, clearCart } = useCart();
@@ -96,8 +97,8 @@ const Checkout = () => {
         key: keyData.key,
         amount: amount * 100,
         currency: 'INR',
-        name: 'Saree Elegance',
-        description: 'Purchase from Saree Elegance',
+        name: 'Thrayam Threads',
+        description: 'Purchase from Thrayam Threads',
         order_id: razorpayOrderId,
         handler: async function (response) {
           try {
@@ -287,9 +288,10 @@ const Checkout = () => {
                 {cart.items.map((item) => (
                   <div key={item._id} className="flex gap-3">
                     <img
-                      src={item.product?.images?.[0]}
+                      src={getProductImage(item.product, 0)}
                       alt={item.product?.name}
                       className="w-14 h-14 object-cover rounded-lg"
+                      onError={(e) => handleImageError(e, 'product')}
                     />
                     <div className="flex-1 min-w-0">
                       <h4 className="text-sm font-medium text-gray-900 line-clamp-1">

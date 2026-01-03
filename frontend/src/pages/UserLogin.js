@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaPhone, FaLock } from 'react-icons/fa';
+import { FaPhone, FaLock, FaWhatsapp } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import API from '../utils/api';
 import { toast } from 'react-toastify';
@@ -37,21 +37,22 @@ const UserLogin = () => {
 
     setLoading(true);
     try {
-      // Check if user exists
-      const { data } = await API.post('/auth/check-mobile', { phone: mobileNumber });
+      // Send WhatsApp OTP for all users (new and existing)
+      const { data } = await API.post('/auth/send-whatsapp-otp', { phone: mobileNumber });
 
       setUserExists(data.exists);
       setOtpSent(true);
       setTimer(60);
 
       if (data.exists) {
-        toast.success(`Welcome back! OTP sent to ${mobileNumber}. Use 1234 for testing.`);
+        toast.success(`Welcome back! OTP sent to your WhatsApp number.`);
       } else {
-        toast.success(`New user! OTP sent to ${mobileNumber}. Use 1234 for testing.`);
+        toast.success(`New user! OTP sent to your WhatsApp number.`);
       }
     } catch (error) {
       console.error('Send OTP error:', error);
-      toast.error('Failed to send OTP. Please try again.');
+      const errorMsg = error.response?.data?.message || 'Failed to send OTP. Please try again.';
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -65,34 +66,23 @@ const UserLogin = () => {
       return;
     }
 
-    // For testing, accept 1234 as OTP
-    if (otp !== '1234') {
-      toast.error('Invalid OTP. Use 1234 for testing.');
-      return;
-    }
-
     setLoading(true);
     try {
-      let response;
-
-      if (userExists) {
-        // Existing user - Login
-        response = await API.post('/auth/login-otp', {
-          phone: mobileNumber,
-          otp: otp
-        });
-        toast.success('Welcome back!');
-      } else {
-        // New user - Register with OTP
-        response = await API.post('/auth/register-otp', {
-          phone: mobileNumber,
-          otp: otp
-        });
-        toast.success('Account created successfully! Please update your profile.');
-      }
+      // Verify WhatsApp OTP for all users (handles both login and registration)
+      const response = await API.post('/auth/verify-whatsapp-otp', {
+        phone: mobileNumber,
+        otp: otp
+      });
 
       // Update AuthContext immediately
       setAuthData(response.data.token, response.data.user);
+
+      // Show success message
+      if (response.data.user.isNewUser) {
+        toast.success('Account created successfully! Please update your profile.');
+      } else {
+        toast.success('Welcome back!');
+      }
 
       // Navigate based on user type
       if (response.data.user.isNewUser) {
@@ -111,9 +101,21 @@ const UserLogin = () => {
     }
   };
 
-  const handleResendOTP = () => {
-    setTimer(60);
-    toast.success(`OTP resent to ${mobileNumber}. Use 1234 for testing.`);
+  const handleResendOTP = async () => {
+    setLoading(true);
+    try {
+      // Resend WhatsApp OTP for all users
+      const { data } = await API.post('/auth/send-whatsapp-otp', { phone: mobileNumber });
+
+      setTimer(60);
+      toast.success(`OTP resent to your WhatsApp number.`);
+    } catch (error) {
+      console.error('Resend OTP error:', error);
+      const errorMsg = error.response?.data?.message || 'Failed to resend OTP. Please try again.';
+      toast.error(errorMsg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEditNumber = () => {
@@ -193,6 +195,7 @@ const UserLogin = () => {
                   'Continue'
                 )}
               </button>
+
             </form>
           ) : (
             // OTP Verification Step
@@ -212,7 +215,8 @@ const UserLogin = () => {
                 </div>
                 <div className="mb-4 p-3 bg-gradient-to-r from-[#5A0F1B]/10 to-[#7A1525]/10 rounded-xl border border-[#5A0F1B]/20">
                   <p className="text-sm text-gray-700 text-center">
-                    Code sent to <span className="font-bold text-[#5A0F1B]">{mobileNumber}</span>
+                    <FaWhatsapp className="inline text-green-600 mr-1" />
+                    WhatsApp OTP sent to <span className="font-bold text-[#5A0F1B]">{mobileNumber}</span>
                   </p>
                 </div>
                 <div className="relative group">
@@ -270,39 +274,19 @@ const UserLogin = () => {
               </button>
             </form>
           )}
-
-          {/* Test OTP Info - Modern Badge */}
-          <div className="mt-6 p-3 bg-gradient-to-r from-[#5A0F1B]/10 to-[#7A1525]/10 rounded-2xl border-2 border-[#5A0F1B]/30">
-            <div className="flex items-center justify-center gap-3">
-              <div className="w-2 h-2 bg-[#5A0F1B] rounded-full animate-pulse"></div>
-              <p className="text-sm text-[#5A0F1B] text-center font-medium">
-                Testing Mode: Use code <span className="font-bold text-[#5A0F1B] bg-white px-3 py-1 rounded-lg">1234</span>
-              </p>
-            </div>
-          </div>
         </div>
 
         {/* Footer Links - Modern Design */}
         <div className="mt-6 text-center space-y-3">
           <div className="bg-gradient-to-r from-white/60 to-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/30 shadow-lg">
             <p className="text-sm text-gray-700 font-medium mb-2">
-              ✨ New to Saree Elegance?
+              ✨ New to Thrayam Threads?
             </p>
             <p className="text-xs text-gray-600 leading-relaxed">
               No registration needed! Just enter your mobile number and we'll create your account automatically.
             </p>
           </div>
 
-          <div className="flex items-center justify-center gap-2">
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent to-gray-300"></div>
-            <p className="text-sm text-gray-600">
-              Admin?{' '}
-              <Link to="/admin-login" className="font-bold text-[#5A0F1B] hover:text-[#7A1525] transition-colors underline decoration-2 underline-offset-4">
-                Login Here
-              </Link>
-            </p>
-            <div className="flex-1 h-px bg-gradient-to-l from-transparent to-gray-300"></div>
-          </div>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { FaCheckCircle, FaBox, FaTruck, FaTimesCircle, FaMoneyBillWave, FaCredit
 import { useAuth } from '../context/AuthContext';
 import API from '../utils/api';
 import { toast } from 'react-toastify';
+import { getImageUrl, handleImageError } from '../utils/imageHelper';
 
 const OrderDetail = () => {
   const { id } = useParams();
@@ -225,9 +226,10 @@ const OrderDetail = () => {
                 {order.items.map((item) => (
                   <div key={item._id} className="flex gap-4 pb-4 border-b border-gray-200 last:border-0">
                     <img
-                      src={item.image}
+                      src={getImageUrl(item.image, 'product')}
                       alt={item.name}
                       className="w-20 h-20 object-cover rounded-lg"
+                      onError={(e) => handleImageError(e, 'product')}
                     />
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900">{item.name}</h3>

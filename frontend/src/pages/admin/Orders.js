@@ -6,6 +6,7 @@ import { QRCodeCanvas } from 'qrcode.react';
 import * as XLSX from 'xlsx';
 import AdminLayout from '../../components/AdminLayout';
 import API from '../../utils/api';
+import { getImageUrl, handleImageError } from '../../utils/imageHelper';
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -649,7 +650,7 @@ const AdminOrders = () => {
               <div ref={printRef} className="space-y-6">
                 {/* Header for print */}
                 <div className="print-only text-center mb-6">
-                  <h1 className="text-3xl font-bold text-[#5A0F1B]">Saree Elegance</h1>
+                  <h1 className="text-3xl font-bold text-[#5A0F1B]">Thrayam Threads</h1>
                   <p className="text-gray-600">Order Invoice</p>
                   <hr className="my-4" />
                 </div>
@@ -709,9 +710,10 @@ const AdminOrders = () => {
                     {selectedOrder.items?.map((item, index) => (
                       <div key={index} className="flex gap-4 bg-gray-50 rounded-lg p-4">
                         <img
-                          src={item.image}
+                          src={getImageUrl(item.image, 'product')}
                           alt={item.name}
                           className="w-20 h-20 object-cover rounded-lg"
+                          onError={(e) => handleImageError(e, 'product')}
                         />
                         <div className="flex-1">
                           <p className="font-semibold text-gray-900">{item.name}</p>
@@ -1044,7 +1046,7 @@ const AdminOrders = () => {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px', borderBottom: '2px solid #5A0F1B', paddingBottom: '8px' }}>
                 <div style={{ flex: 1 }}>
                   <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#5A0F1B', margin: 0, lineHeight: '1.2' }}>
-                    Saree Elegance
+                    Thrayam Threads
                   </h3>
                   <p style={{ fontSize: '10px', color: '#666', margin: '3px 0' }}>Premium Sarees Collection</p>
                   <p style={{ fontSize: '9px', color: '#333', margin: '2px 0', fontWeight: 'bold' }}>
@@ -1220,7 +1222,7 @@ const AdminOrders = () => {
                   border: '1px solid #ff9800'
                 }}>
                   <p style={{ margin: '0 0 2px 0', fontSize: '11px', fontWeight: 'bold', color: '#000' }}>
-                    Saree Elegance
+                    Thrayam Threads
                   </p>
                   <p style={{ margin: '0', fontSize: '9px', lineHeight: '1.3', color: '#333' }}>
                     123 Fashion Street, Textile Hub<br />

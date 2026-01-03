@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaStar, FaHeart, FaEye } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
+import { getProductImage, handleImageError } from '../utils/imageHelper';
 
 const ProductCard = ({ product }) => {
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
@@ -49,8 +50,9 @@ const ProductCard = ({ product }) => {
       >
         <Link to={`/products/${product._id}`}>
           <img
-            src={product.images?.[currentImageIndex]?.url || product.images?.[0]?.url || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400'}
+            src={getProductImage(product, currentImageIndex)}
             alt={product.name}
+            onError={(e) => handleImageError(e, 'product')}
             className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
           />
         </Link>

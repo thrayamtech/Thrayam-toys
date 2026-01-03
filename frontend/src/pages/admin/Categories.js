@@ -3,6 +3,7 @@ import { FaPlus, FaEdit, FaTrash, FaTags } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import AdminLayout from '../../components/AdminLayout';
 import API from '../../utils/api';
+import { getCategoryImage, handleImageError } from '../../utils/imageHelper';
 
 const AdminCategories = () => {
   const [categories, setCategories] = useState([]);
@@ -11,10 +12,8 @@ const AdminCategories = () => {
   const [editingCategory, setEditingCategory] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    description: '',
-    image: null
+    description: ''
   });
-  const [previewImage, setPreviewImage] = useState('');
 
   useEffect(() => {
     fetchCategories();
@@ -33,34 +32,15 @@ const AdminCategories = () => {
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({ ...formData, image: file });
-      setPreviewImage(URL.createObjectURL(file));
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const submitData = new FormData();
-      submitData.append('name', formData.name);
-      submitData.append('description', formData.description);
-      if (formData.image) {
-        submitData.append('image', formData.image);
-      }
-
       if (editingCategory) {
-        await API.put(`/admin/categories/${editingCategory._id}`, submitData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await API.put(`/admin/categories/${editingCategory._id}`, formData);
         toast.success('Category updated successfully');
       } else {
-        await API.post('/admin/categories', submitData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await API.post('/admin/categories', formData);
         toast.success('Category created successfully');
       }
 
@@ -88,21 +68,17 @@ const AdminCategories = () => {
     setEditingCategory(category);
     setFormData({
       name: category.name || '',
-      description: category.description || '',
-      image: null
+      description: category.description || ''
     });
-    setPreviewImage(category.image?.url || '');
     setShowModal(true);
   };
 
   const resetForm = () => {
     setFormData({
       name: '',
-      description: '',
-      image: null
+      description: ''
     });
     setEditingCategory(null);
-    setPreviewImage('');
   };
 
   return (
@@ -135,11 +111,12 @@ const AdminCategories = () => {
             {categories.map((category) => (
               <div key={category._id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                 <div className="aspect-video bg-gray-100 relative">
-                  {category.image?.url ? (
+                  {category.image?.url || category.image ? (
                     <img
-                      src={category.image.url}
+                      src={getCategoryImage(category)}
                       alt={category.name}
                       className="w-full h-full object-cover"
+                      onError={(e) => handleImageError(e, 'category')}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
@@ -224,27 +201,6 @@ const AdminCategories = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
                   placeholder="Brief description of this category"
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Category Image
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
-                />
-                {previewImage && (
-                  <div className="mt-4">
-                    <img
-                      src={previewImage}
-                      alt="Preview"
-                      className="w-full h-48 object-cover rounded-lg"
-                    />
-                  </div>
-                )}
               </div>
 
               <div className="flex items-center gap-3 pt-4">

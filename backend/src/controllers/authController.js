@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const { sendWhatsAppOTP: sendWhatsAppOTPUtil, generateOTP, saveOTP, verifyOTP } = require('../utils/msg91');
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -570,6 +571,139 @@ exports.registerWithOTP = async (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to create account'
+    });
+  }
+};
+
+// @desc    Send WhatsApp OTP (For all users - Login & Registration)
+// @route   POST /api/auth/send-whatsapp-otp
+// @access  Public
+exports.sendWhatsAppOTP = async (req, res) => {
+  try {
+    const { phone } = req.body;
+
+    // Validate phone number
+    if (!phone || !/^[0-9]{10}$/.test(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid 10-digit phone number'
+      });
+    }
+
+    // Check if user exists
+    const userExists = await User.findOne({ phone });
+
+    // Generate OTP
+    const otp = generateOTP(4); // 4-digit random OTP
+
+    // Save OTP
+    saveOTP(phone, otp, 10); // 10 minutes expiry
+
+    // Send WhatsApp OTP
+    const result = await sendWhatsAppOTPUtil(phone, otp);
+
+    console.log('MSG91 Send Result:', JSON.stringify(result, null, 2));
+
+    if (result.success) {
+      res.status(200).json({
+        success: true,
+        message: `OTP sent to your WhatsApp number ending in ${phone.slice(-4)}`,
+        exists: !!userExists
+      });
+    } else {
+      console.error('MSG91 failed:', result);
+      throw new Error(result.message || 'Failed to send WhatsApp OTP');
+    }
+  } catch (error) {
+    console.error('Send WhatsApp OTP Error:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to send WhatsApp OTP'
+    });
+  }
+};
+
+// @desc    Verify WhatsApp OTP and Login/Register
+// @route   POST /api/auth/verify-whatsapp-otp
+// @access  Public
+exports.verifyWhatsAppOTP = async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+
+    // Validate inputs
+    if (!phone || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: 'Phone number and OTP are required'
+      });
+    }
+
+    // Verify OTP
+    const verification = verifyOTP(phone, otp);
+
+    if (!verification.success) {
+      return res.status(401).json(verification);
+    }
+
+    // Check if user exists
+    let user = await User.findOne({ phone });
+
+    if (user) {
+      // Existing user - Login
+      // Check if user is active
+      if (!user.isActive) {
+        return res.status(401).json({
+          success: false,
+          message: 'Your account has been deactivated'
+        });
+      }
+
+      const token = generateToken(user._id);
+
+      res.status(200).json({
+        success: true,
+        message: 'Login successful',
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+          address: user.addresses.find(addr => addr.isDefault) || user.addresses[0],
+          isNewUser: false
+        }
+      });
+    } else {
+      // New user - Auto-register with temporary data
+      user = await User.create({
+        name: `User_${phone}`,
+        email: `${phone}@temp.com`,
+        phone: phone.trim()
+      });
+
+      const token = generateToken(user._id);
+
+      res.status(201).json({
+        success: true,
+        message: 'Account created successfully. Please complete your profile.',
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+          isNewUser: true
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Verify WhatsApp OTP Error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to verify OTP'
     });
   }
 };

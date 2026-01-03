@@ -1,6 +1,7 @@
 const Referral = require('../models/Referral');
 const User = require('../models/User');
 const LoyaltySettings = require('../models/LoyaltySettings');
+const { sendWhatsAppReferral } = require('../utils/msg91');
 
 // @desc    Add friend referral by name and WhatsApp
 // @route   POST /api/referral/add-friend
@@ -48,29 +49,65 @@ exports.addFriend = async (req, res) => {
       });
     }
 
-    // Check if friend already registered
+    // Check if friend already registered - Don't allow referring existing users
     const registeredFriend = await User.findOne({ phone: whatsapp });
 
-    // Create referral
+    if (registeredFriend) {
+      return res.status(400).json({
+        success: false,
+        message: 'This user is already registered. You can only refer new users.'
+      });
+    }
+
+    // Create referral for new user only
     const referral = await Referral.create({
       referrer: req.user._id,
       refereeName: name,
       refereeWhatsApp: whatsapp,
-      referee: registeredFriend ? registeredFriend._id : null,
-      status: registeredFriend ? 'registered' : 'pending',
-      registeredAt: registeredFriend ? new Date() : null,
+      referee: null,
+      status: 'pending',
+      registeredAt: null,
       notes: notes || ''
     });
 
-    // If friend already registered, link them
-    if (registeredFriend && !registeredFriend.referredBy) {
-      registeredFriend.referredBy = req.user._id;
-      await registeredFriend.save();
+    // Send WhatsApp referral message to friend
+    const referrerName = currentUser.name && !currentUser.name.startsWith('User_')
+      ? currentUser.name
+      : 'Your Friend';
+
+    // Get frontend URL from environment or use default
+    let frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5001';
+    // Remove trailing slash if exists
+    frontendUrl = frontendUrl.replace(/\/$/, '');
+    const referralLink = frontendUrl; // Send only base URL as requested
+
+    console.log('\n' + '='.repeat(60));
+    console.log('📨 Sending WhatsApp Referral Invitation');
+    console.log('='.repeat(60));
+    console.log(`To: ${whatsapp}`);
+    console.log(`From: ${referrerName}`);
+    console.log(`Link: ${referralLink}`);
+    console.log('='.repeat(60) + '\n');
+
+    // Send WhatsApp message (await to ensure it's sent)
+    try {
+      const result = await sendWhatsAppReferral(whatsapp, referrerName, referralLink);
+
+      if (result.success) {
+        console.log(`✅ WhatsApp referral sent successfully to ${whatsapp}`);
+        console.log(`   MSG91 Request ID: ${result.data?.request_id || 'N/A'}`);
+      } else {
+        console.error(`⚠️ Failed to send WhatsApp referral to ${whatsapp}:`);
+        console.error(`   Error: ${result.message}`);
+      }
+    } catch (error) {
+      console.error(`❌ Exception sending WhatsApp referral to ${whatsapp}:`);
+      console.error(error);
     }
 
     res.status(201).json({
       success: true,
-      message: 'Friend added successfully',
+      message: 'Friend added successfully. WhatsApp invitation sent!',
       referral: {
         id: referral._id,
         name: referral.refereeName,

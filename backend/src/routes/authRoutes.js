@@ -12,7 +12,9 @@ const {
   toggleWishlist,
   checkMobile,
   loginWithOTP,
-  registerWithOTP
+  registerWithOTP,
+  sendWhatsAppOTP,
+  verifyWhatsAppOTP
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 
@@ -21,6 +23,8 @@ router.post('/login', login);
 router.post('/check-mobile', checkMobile);
 router.post('/login-otp', loginWithOTP);
 router.post('/register-otp', registerWithOTP);
+router.post('/send-whatsapp-otp', sendWhatsAppOTP);
+router.post('/verify-whatsapp-otp', verifyWhatsAppOTP);
 router.get('/profile', protect, getProfile);
 router.put('/profile', protect, updateProfile);
 router.put('/password', protect, updatePassword);
