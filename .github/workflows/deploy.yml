@@ -20,35 +20,6 @@ jobs:
         with:
           node-version: 20
 
-      # ---------- BUILD FRONTEND ----------
-      - name: Build Frontend
-        run: |
-          cd frontend
-          npm install
-          npm run build
-
-      # ---------- CLEAN FRONTEND FOLDER ON EC2 ----------
-      - name: Clean frontend build directory on EC2
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ec2-user
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            rm -rf /home/ec2-user/apps/thrayam-threads/frontend/build
-            mkdir -p /home/ec2-user/apps/thrayam-threads/frontend/build
-
-      # ---------- UPLOAD FRONTEND BUILD ----------
-      - name: Upload frontend build to EC2
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ec2-user
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "frontend/build/."
-          target: "/home/ec2-user/apps/thrayam-threads/frontend/build"
-          strip_components: 2
-
       # ---------- SETUP BACKEND REPOSITORY ----------
       - name: Setup Backend Repository
         uses: appleboy/ssh-action@v1.0.3
@@ -78,6 +49,24 @@ jobs:
             # Restart PM2 process
             pm2 restart thrayam-backend || pm2 start server.js --name thrayam-backend
             pm2 save
+
+      # ---------- BUILD FRONTEND ----------
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm install
+          npm run build
+
+      # ---------- UPLOAD FRONTEND BUILD ----------
+      - name: Upload frontend build to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "frontend/build/."
+          target: "/home/ec2-user/apps/thrayam-threads/frontend/build"
+          strip_components: 2
 
       # ---------- RELOAD NGINX ----------
       - name: Reload Nginx
