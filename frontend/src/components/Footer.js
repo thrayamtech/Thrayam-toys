@@ -87,12 +87,12 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/shipping" className="hover:text-[#8A1F35] transition flex items-center">
+                <Link to="/shipping-policy" className="hover:text-[#8A1F35] transition flex items-center">
                   <span className="mr-2">›</span> Shipping Information
                 </Link>
               </li>
               <li>
-                <Link to="/returns" className="hover:text-[#8A1F35] transition flex items-center">
+                <Link to="/refund-policy" className="hover:text-[#8A1F35] transition flex items-center">
                   <span className="mr-2">›</span> Returns & Exchange
                 </Link>
               </li>
@@ -177,13 +177,21 @@ const Footer = () => {
               <FaHeart className="text-red-500 mx-2 animate-pulse" />
               <span>in India</span>
             </div>
-            <div className="flex space-x-4 mt-2 md:mt-0">
-              <Link to="/privacy" className="hover:text-[#8A1F35] transition">
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2 md:mt-0">
+              <Link to="/privacy-policy" className="hover:text-[#8A1F35] transition">
                 Privacy Policy
               </Link>
               <span className="text-gray-600">|</span>
-              <Link to="/terms" className="hover:text-[#8A1F35] transition">
+              <Link to="/terms-conditions" className="hover:text-[#8A1F35] transition">
                 Terms & Conditions
+              </Link>
+              <span className="text-gray-600">|</span>
+              <Link to="/refund-policy" className="hover:text-[#8A1F35] transition">
+                Refund Policy
+              </Link>
+              <span className="text-gray-600">|</span>
+              <Link to="/shipping-policy" className="hover:text-[#8A1F35] transition">
+                Shipping Policy
               </Link>
             </div>
           </div>

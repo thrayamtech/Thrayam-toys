@@ -4,6 +4,7 @@
  */
 
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const SiteSetting = require('../models/SiteSetting');
 
 /**
  * Send WhatsApp OTP using MSG91
@@ -190,6 +191,61 @@ const clearOTP = (phone) => {
 };
 
 /**
+ * Check if phone is a test account
+ * @param {string} phone - Phone number (10 digits)
+ * @returns {Promise<boolean>} - True if test account
+ */
+const isTestAccount = async (phone) => {
+  try {
+    const setting = await SiteSetting.findOne({ key: 'test_accounts' });
+    if (!setting || !setting.value) {
+      return false;
+    }
+
+    const testAccounts = Array.isArray(setting.value) ? setting.value : [];
+    return testAccounts.some(account => account.phone === phone && account.enabled);
+  } catch (error) {
+    console.error('Error checking test account:', error);
+    return false;
+  }
+};
+
+/**
+ * Get test OTP for a test account (default: 1234)
+ * @param {string} phone - Phone number (10 digits)
+ * @returns {Promise<string|null>} - Test OTP or null if not a test account
+ */
+const getTestAccountOTP = async (phone) => {
+  try {
+    console.log(`[Test Account] Checking if ${phone} is a test account...`);
+    const setting = await SiteSetting.findOne({ key: 'test_accounts' });
+    console.log(`[Test Account] Setting found:`, setting ? JSON.stringify(setting.value) : 'null');
+
+    if (!setting || !setting.value) {
+      console.log(`[Test Account] No test_accounts setting found`);
+      return null;
+    }
+
+    const testAccounts = Array.isArray(setting.value) ? setting.value : [];
+    console.log(`[Test Account] Test accounts:`, JSON.stringify(testAccounts));
+
+    const testAccount = testAccounts.find(account => account.phone === phone && account.enabled);
+    console.log(`[Test Account] Matching account for ${phone}:`, testAccount ? JSON.stringify(testAccount) : 'none');
+
+    if (testAccount) {
+      const otp = testAccount.otp || '1234';
+      console.log(`[Test Account] Found test account! Using OTP: ${otp}`);
+      return otp;
+    }
+    console.log(`[Test Account] ${phone} is not a test account`);
+    return null;
+  } catch (error) {
+    console.error('[Test Account] Error getting test account OTP:', error);
+    return null;
+  }
+};
+
+/**
  * Send WhatsApp Referral Message
  * @param {string} phone - Friend's phone number (10 digits without country code)
  * @param {string} referrerName - Name of the person referring
@@ -287,5 +343,7 @@ module.exports = {
   generateOTP,
   saveOTP,
   verifyOTP,
-  clearOTP
+  clearOTP,
+  isTestAccount,
+  getTestAccountOTP
 };

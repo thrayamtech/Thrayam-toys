@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import API from '../utils/api';
 import { toast } from 'react-toastify';
 
@@ -103,12 +103,12 @@ export const AuthProvider = ({ children }) => {
     toast.info('Logged out successfully');
   };
 
-  const updateUser = (updatedUser) => {
+  const updateUser = useCallback((updatedUser) => {
     setUser(updatedUser);
     localStorage.setItem('user', JSON.stringify(updatedUser));
-  };
+  }, []);
 
-  const setAuthData = (authToken, userData) => {
+  const setAuthData = useCallback((authToken, userData) => {
     // This is called during OTP login/registration
     // Clear all localStorage except guestCart before setting auth data
     clearLocalStorageExcept(['guestCart']);
@@ -117,7 +117,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(userData));
     setToken(authToken);
     setUser(userData);
-  };
+  }, []);
 
   const value = {
     user,

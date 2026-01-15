@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaTachometerAlt, FaBoxes, FaShoppingCart, FaUsers, FaTags, FaTicketAlt, FaBars, FaTimes, FaSignOutAlt, FaChartLine, FaImages, FaCog, FaGift, FaWallet, FaChartBar } from 'react-icons/fa';
+import { FaTachometerAlt, FaBoxes, FaShoppingCart, FaUsers, FaTags, FaTicketAlt, FaBars, FaTimes, FaSignOutAlt, FaChartLine, FaImages, FaCog, FaGift, FaWallet, FaChartBar, FaFilm } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 
 const AdminLayout = ({ children }) => {
@@ -24,6 +24,7 @@ const AdminLayout = ({ children }) => {
     { path: '/admin/loyalty-settings', icon: FaGift, label: 'Loyalty & Rewards' },
     { path: '/admin/referral-tracking', icon: FaWallet, label: 'Referral Tracking' },
     { path: '/admin/sliders', icon: FaImages, label: 'Sliders' },
+    { path: '/admin/reels', icon: FaFilm, label: 'Reels' },
     { path: '/admin/settings', icon: FaCog, label: 'Settings' },
     { path: '/admin/reports', icon: FaChartLine, label: 'Reports' },
     { path: '/admin/analytics', icon: FaChartBar, label: 'Analytics' },

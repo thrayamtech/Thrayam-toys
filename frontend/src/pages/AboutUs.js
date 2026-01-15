@@ -4,7 +4,7 @@ import { FaAward, FaShippingFast, FaLock, FaPhone } from 'react-icons/fa';
 const AboutUs = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-pink-50">
-      {/* Hero Section */}
+      {/* Hero Section  */}
       <div className="bg-gradient-to-r from-[#5A0F1B] to-[#8A1F35] text-white py-20">
         <div className="max-w-[1600px] mx-auto px-6 text-center">
           <h1 className="text-5xl md:text-6xl font-serif font-bold mb-6">About Thrayam Threads</h1>

@@ -30,6 +30,12 @@ import Blogs from './pages/Blogs';
 import ContactUs from './pages/ContactUs';
 import PaymentFailure from './pages/PaymentFailure';
 
+// Policy Pages
+import PrivacyPolicy from './policies/PrivacyPolicy';
+import TermsConditions from './policies/TermsConditions';
+import RefundPolicy from './policies/RefundPolicy';
+import ShippingPolicy from './policies/ShippingPolicy';
+
 // Admin Pages
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminProducts from './pages/admin/Products';
@@ -38,6 +44,7 @@ import AdminUsers from './pages/admin/Users';
 import AdminCategories from './pages/admin/Categories';
 import AdminCoupons from './pages/admin/Coupons';
 import AdminSliders from './pages/admin/Sliders';
+import AdminReels from './pages/admin/Reels';
 import AdminSettings from './pages/admin/Settings';
 import AdminReports from './pages/admin/Reports';
 import LoyaltySettings from './pages/admin/LoyaltySettings';
@@ -70,7 +77,11 @@ function AppContent() {
       '/categories': 'Categories',
       '/about': 'About Us',
       '/blogs': 'Blogs',
-      '/contact': 'Contact Us'
+      '/contact': 'Contact Us',
+      '/privacy-policy': 'Privacy Policy',
+      '/terms-conditions': 'Terms & Conditions',
+      '/refund-policy': 'Refund Policy',
+      '/shipping-policy': 'Shipping Policy'
     };
 
     const title = pageTitles[location.pathname] || document.title;
@@ -141,6 +152,14 @@ function AppContent() {
               }
             />
             <Route
+              path="/reels"
+              element={
+                <AdminRoute>
+                  <AdminReels />
+                </AdminRoute>
+              }
+            />
+            <Route
               path="/settings"
               element={
                 <AdminRoute>
@@ -201,6 +220,12 @@ function AppContent() {
                 <Route path="/blogs" element={<Blogs />} />
                 <Route path="/contact" element={<ContactUs />} />
                 <Route path="/refer-friend" element={<ReferFriend />} />
+
+                {/* Policy Pages */}
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-conditions" element={<TermsConditions />} />
+                <Route path="/refund-policy" element={<RefundPolicy />} />
+                <Route path="/shipping-policy" element={<ShippingPolicy />} />
                 <Route path="/login" element={<UserLogin />} />
                 <Route path="/admin-login" element={<Login />} />
                 <Route path="/register" element={<Register />} />

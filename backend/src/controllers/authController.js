@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const { sendWhatsAppOTP: sendWhatsAppOTPUtil, generateOTP, saveOTP, verifyOTP } = require('../utils/msg91');
+const { sendWhatsAppOTP: sendWhatsAppOTPUtil, generateOTP, saveOTP, verifyOTP, isTestAccount, getTestAccountOTP } = require('../utils/msg91');
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -593,7 +593,23 @@ exports.sendWhatsAppOTP = async (req, res) => {
     // Check if user exists
     const userExists = await User.findOne({ phone });
 
-    // Generate OTP
+    // Check if this is a test account
+    const testOTP = await getTestAccountOTP(phone);
+
+    if (testOTP) {
+      // For test accounts, save the fixed OTP and skip sending WhatsApp message
+      saveOTP(phone, testOTP, 10); // 10 minutes expiry
+      console.log(`Test account detected for ${phone}. Using fixed OTP: ${testOTP}`);
+
+      return res.status(200).json({
+        success: true,
+        message: `OTP sent to your WhatsApp number ending in ${phone.slice(-4)}`,
+        exists: !!userExists,
+        isTestAccount: true // Flag for frontend (optional)
+      });
+    }
+
+    // Generate OTP for regular accounts
     const otp = generateOTP(4); // 4-digit random OTP
 
     // Save OTP

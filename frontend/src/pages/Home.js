@@ -45,16 +45,14 @@ const Home = () => {
 
   const fetchData = async () => {
     try {
-      const [categoriesRes, productsRes] = await Promise.all([
+      const [categoriesRes, productsRes, reelsRes] = await Promise.all([
         API.get('/categories'),
-        API.get('/products?featured=true&limit=12')
+        API.get('/products?featured=true&limit=12'),
+        API.get('/reels/active')
       ]);
       setCategories(categoriesRes.data.categories || []);
       setFeaturedProducts(productsRes.data.products || []);
-
-      // Fetch reels - for now we'll create sample data from products
-      // You can replace this with actual API call when backend is ready
-      fetchReels(productsRes.data.products);
+      setReels(reelsRes.data.reels || []);
 
       // Fetch initial products for "All" category
       fetchCategoryProducts();
@@ -63,28 +61,6 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchReels = (products) => {
-    // Sample reels data - using publicly available sample videos
-    // Replace with actual video URLs from your backend when ready
-    const sampleVideos = [
-      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
-      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4'
-    ];
-
-    const sampleReels = products.slice(0, 6).map((product, index) => ({
-      _id: `reel-${product._id}`,
-      videoUrl: sampleVideos[index % sampleVideos.length],
-      product: product,
-      views: Math.floor(Math.random() * 10000) + 1000
-    }));
-
-    setReels(sampleReels);
   };
 
   const fetchCategoryProducts = async () => {
