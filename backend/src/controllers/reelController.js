@@ -4,7 +4,15 @@ const Reel = require('../models/Reel');
 exports.getActiveReels = async (req, res) => {
   try {
     const userId = req.user?._id;
-    const reels = await Reel.find({ isActive: true })
+    const query = { isActive: true };
+    // Optional: filter by product id
+    if (req.query.product) {
+      const mongoose = require('mongoose');
+      if (mongoose.Types.ObjectId.isValid(req.query.product)) {
+        query.product = new mongoose.Types.ObjectId(req.query.product);
+      }
+    }
+    const reels = await Reel.find(query)
       .sort({ order: 1 })
       .populate('product', 'name slug images price salePrice stock sizes colors');
 

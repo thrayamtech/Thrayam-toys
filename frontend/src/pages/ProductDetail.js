@@ -11,6 +11,7 @@ import { getProductImage, handleImageError } from '../utils/imageHelper';
 import { setSEO, generateProductSchema, generateBreadcrumbSchema } from '../utils/seo';
 import WhatsAppChat from '../components/WhatsAppChat';
 import ProductCard from '../components/ProductCard';
+import ProductReelFloat from '../components/ProductReelFloat';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -24,6 +25,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [showLightbox, setShowLightbox] = useState(false);
   const [similarProducts, setSimilarProducts] = useState([]);
+  const [productReels, setProductReels] = useState([]);
   const { addToCart } = useCart();
 
   // Social proof — stable random values per product page load
@@ -98,6 +100,15 @@ const ProductDetail = () => {
       if (data.product.colors && data.product.colors.length > 0) {
         setSelectedColor(data.product.colors[0].name);
       }
+      // Fetch reels linked to this product only
+      try {
+        const reelRes = await API.get(`/reels/active?product=${data.product._id}`);
+        const filtered = (reelRes.data.reels || []).filter(
+          r => r.product?._id === data.product._id || r.product === data.product._id
+        );
+        setProductReels(filtered);
+      } catch (_) {}
+
       // Fetch similar products from same category, fill with recent if < 7
       try {
         let similar = [];
@@ -707,6 +718,9 @@ const ProductDetail = () => {
 
       {/* WhatsApp Chat — product enquiry (global one is hidden on this route) */}
       <WhatsAppChat product={product} />
+
+      {/* Floating reel stamp — only shown when reels exist for this product */}
+      <ProductReelFloat reels={productReels} />
     </div>
   );
 };
