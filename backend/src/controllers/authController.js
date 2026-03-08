@@ -590,8 +590,23 @@ exports.sendWhatsAppOTP = async (req, res) => {
       });
     }
 
-    // Check if user exists
-    const userExists = await User.findOne({ phone });
+    // Check if user exists; if not, create a placeholder record immediately
+    let userExists = await User.findOne({ phone });
+
+    if (!userExists) {
+      try {
+        userExists = await User.create({
+          name: `User_${phone}`,
+          email: `${phone}@temp.com`,
+          phone: phone.trim()
+        });
+        console.log(`New user pre-registered on OTP send: ${phone}`);
+      } catch (createErr) {
+        // If duplicate key race condition, just look up the existing user
+        userExists = await User.findOne({ phone });
+        console.log(`User already exists (race condition handled): ${phone}`);
+      }
+    }
 
     // Check if this is a test account
     const testOTP = await getTestAccountOTP(phone);
@@ -604,7 +619,7 @@ exports.sendWhatsAppOTP = async (req, res) => {
       return res.status(200).json({
         success: true,
         message: `OTP sent to your WhatsApp number ending in ${phone.slice(-4)}`,
-        exists: !!userExists,
+        exists: true,
         isTestAccount: true // Flag for frontend (optional)
       });
     }
@@ -624,7 +639,7 @@ exports.sendWhatsAppOTP = async (req, res) => {
       res.status(200).json({
         success: true,
         message: `OTP sent to your WhatsApp number ending in ${phone.slice(-4)}`,
-        exists: !!userExists
+        exists: true
       });
     } else {
       console.error('MSG91 failed:', result);

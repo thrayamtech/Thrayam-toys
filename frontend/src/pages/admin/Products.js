@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaSearch, FaImage, FaTimes } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import AdminLayout from '../../components/AdminLayout';
 import API from '../../utils/api';
 import { getProductImage, handleImageError } from '../../utils/imageHelper';
+
+const quillModules = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ color: [] }, { background: [] }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['link'],
+    ['clean'],
+  ],
+};
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
@@ -546,13 +559,15 @@ const AdminProducts = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Description *
                   </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows="3"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
-                    required
-                  />
+                  <div className="border border-gray-300 rounded-lg overflow-hidden">
+                    <ReactQuill
+                      theme="snow"
+                      value={formData.description}
+                      onChange={(value) => setFormData({ ...formData, description: value })}
+                      modules={quillModules}
+                      style={{ minHeight: '150px' }}
+                    />
+                  </div>
                 </div>
 
                 <div>

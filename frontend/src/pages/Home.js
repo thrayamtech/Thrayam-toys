@@ -14,10 +14,14 @@ const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [loading, setLoading] = useState(true);
   const [categoryLoading, setCategoryLoading] = useState(false);
+  const [categoryPage, setCategoryPage] = useState(1);
+  const [categoryHasMore, setCategoryHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [showFeaturedLeftArrow, setShowFeaturedLeftArrow] = useState(false);
   const [showFeaturedRightArrow, setShowFeaturedRightArrow] = useState(true);
   const [reelsEnabled, setReelsEnabled] = useState(true);
   const featuredScrollRef = useRef(null);
+  const sentinelRef = useRef(null);
 
   useEffect(() => {
     fetchData();
@@ -25,10 +29,7 @@ const Home = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    fetchCategoryProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCategory]);
+  const prevCategoryRef = useRef(selectedCategory);
 
   const fetchSettings = async () => {
     try {
@@ -66,8 +67,6 @@ const Home = () => {
         );
       }
 
-      // Fetch initial products for "All" category
-      fetchCategoryProducts();
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -75,20 +74,54 @@ const Home = () => {
     }
   };
 
-  const fetchCategoryProducts = async () => {
-    setCategoryLoading(true);
+  const fetchCategoryProducts = async (page = 1, append = false) => {
+    if (page === 1) setCategoryLoading(true);
+    else setLoadingMore(true);
     try {
       const url = selectedCategory === 'all'
-        ? '/products?limit=12'
-        : `/products?category=${selectedCategory}&limit=12`;
+        ? `/products?limit=12&page=${page}`
+        : `/products?category=${selectedCategory}&limit=12&page=${page}`;
       const { data } = await API.get(url);
-      setCategoryProducts(data.products || []);
+      const newProducts = data.products || [];
+      setCategoryProducts(prev => append ? [...prev, ...newProducts] : newProducts);
+      setCategoryHasMore(page < (data.pages || 1));
     } catch (error) {
       console.error('Error fetching category products:', error);
     } finally {
       setCategoryLoading(false);
+      setLoadingMore(false);
     }
   };
+
+  useEffect(() => {
+    const isNewCategory = prevCategoryRef.current !== selectedCategory;
+    prevCategoryRef.current = selectedCategory;
+    if (isNewCategory) {
+      setCategoryProducts([]);
+      setCategoryHasMore(true);
+      setCategoryPage(1);
+      fetchCategoryProducts(1, false);
+    } else {
+      fetchCategoryProducts(categoryPage, categoryPage > 1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory, categoryPage]);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && categoryHasMore && !loadingMore && !categoryLoading) {
+          setCategoryPage(prev => prev + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryHasMore, loadingMore, categoryLoading]);
 
   // Featured carousel scroll functions
   const scrollFeaturedCarousel = (direction) => {
@@ -177,6 +210,14 @@ const Home = () => {
             <p className="text-gray-600 text-xs md:text-sm max-w-2xl mx-auto">
               Trending styles and timeless classics curated just for you
             </p>
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <span className="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+                😊 500+ Happy Customers
+              </span>
+              <span className="inline-flex items-center gap-1.5 bg-[#5A0F1B]/5 border border-[#5A0F1B]/20 text-[#5A0F1B] text-xs font-semibold px-3 py-1 rounded-full">
+                ⭐ Trusted Across South India
+              </span>
+            </div>
           </div>
 
           {loading ? (
@@ -316,6 +357,22 @@ const Home = () => {
                   <p className="text-gray-400 text-sm mt-2">Try selecting a different category</p>
                 </div>
               )}
+
+              {/* Infinite Scroll Sentinel */}
+              <div ref={sentinelRef} className="h-4" />
+
+              {/* Load More Spinner */}
+              {loadingMore && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-5 mt-4 md:mt-5">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="bg-gradient-to-br from-gray-200 to-gray-100 aspect-[3/4] rounded-xl mb-3"></div>
+                      <div className="bg-gray-200 h-4 rounded w-3/4 mb-2"></div>
+                      <div className="bg-gray-200 h-4 rounded w-1/2"></div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           )}
         </div>
@@ -366,6 +423,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+
     </div>
   );
 };

@@ -9,6 +9,8 @@ import Footer from './components/Footer';
 import CartSidebar from './components/CartSidebar';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
+import WhatsAppChat from './components/WhatsAppChat';
+import LivePurchaseNotification from './components/LivePurchaseNotification';
 
 // Pages
 import Home from './pages/Home';
@@ -357,6 +359,12 @@ function AppContent() {
               isOpen={isCartSidebarOpen}
               onClose={() => setIsCartSidebarOpen(false)}
             />
+
+            {/* Global WhatsApp Chat — hidden on product pages (ProductDetail renders its own with product name) */}
+            {!location.pathname.startsWith('/products/') && <WhatsAppChat />}
+
+            {/* Global Live Purchase Notification */}
+            <LivePurchaseNotification />
           </div>
         }
       />

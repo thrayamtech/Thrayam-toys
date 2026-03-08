@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
-import { FaStar, FaHeart, FaShoppingCart, FaCheck, FaMinus, FaPlus } from 'react-icons/fa';
+import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
+import { FaStar, FaHeart, FaShoppingCart, FaCheck, FaMinus, FaPlus, FaWhatsapp, FaBolt } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 // useAuth removed - cart now works for both logged in and guest users
 import { toast } from 'react-toastify';
@@ -9,10 +9,13 @@ import analytics from '../utils/analytics';
 import { trackViewContent, trackAddToCart as trackPixelAddToCart } from '../utils/metaPixel';
 import { getProductImage, handleImageError } from '../utils/imageHelper';
 import { setSEO, generateProductSchema, generateBreadcrumbSchema } from '../utils/seo';
+import WhatsAppChat from '../components/WhatsAppChat';
+import ProductCard from '../components/ProductCard';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -20,7 +23,20 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [showLightbox, setShowLightbox] = useState(false);
+  const [similarProducts, setSimilarProducts] = useState([]);
   const { addToCart } = useCart();
+
+  // Social proof — stable random values per product page load
+  const [socialProof] = useState(() => {
+    const rawRating = (Math.floor(Math.random() * 11) + 40) / 10; // 4.0–5.0 in 0.1 steps
+    return {
+      sold: Math.floor(Math.random() * 8) + 3,      // 3–10
+      hours: Math.floor(Math.random() * 16) + 5,    // 5–20
+      viewing: Math.floor(Math.random() * 16) + 20, // 20–35
+      rating: rawRating,
+      reviews: Math.floor(Math.random() * 3) + 8,   // 8–10
+    };
+  });
 
   useEffect(() => {
     fetchProduct();
@@ -82,6 +98,21 @@ const ProductDetail = () => {
       if (data.product.colors && data.product.colors.length > 0) {
         setSelectedColor(data.product.colors[0].name);
       }
+      // Fetch similar products from same category, fill with recent if < 7
+      try {
+        let similar = [];
+        if (data.product.category?._id) {
+          const simRes = await API.get(`/products?category=${data.product.category._id}&limit=8`);
+          similar = (simRes.data.products || []).filter(p => p._id !== data.product._id).slice(0, 7);
+        }
+        if (similar.length < 7) {
+          const recentRes = await API.get('/products?limit=20&sort=-createdAt');
+          const existingIds = new Set([data.product._id, ...similar.map(p => p._id)]);
+          const recent = (recentRes.data.products || []).filter(p => !existingIds.has(p._id));
+          similar = [...similar, ...recent].slice(0, 7);
+        }
+        setSimilarProducts(similar);
+      } catch (_) {}
     } catch (error) {
       console.error('Error fetching product:', error);
       toast.error('Failed to load product');
@@ -126,6 +157,26 @@ const ProductDetail = () => {
     }
   };
 
+  const handleBuyNow = async () => {
+    if (product.stock === 0) { toast.error('Product is out of stock'); return; }
+    const hasOptions = (product.sizes?.length > 0) || (product.colors?.length > 0);
+    if (hasOptions && (!selectedSize || !selectedColor)) {
+      toast.error('Please select size and color'); return;
+    }
+    try {
+      await addToCart(product._id, quantity, selectedSize || 'Free Size', selectedColor || 'Default');
+      navigate('/checkout');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to proceed');
+    }
+  };
+
+  const handleWhatsAppShare = () => {
+    const price = product.discountPrice || product.price;
+    const text = `🛍️ Check out this beautiful saree!\n\n*${product.name}*\n💰 ₹${price.toLocaleString()}\n\n${window.location.href}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  };
+
   const discountPercent = product?.discountPrice
     ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
     : 0;
@@ -152,7 +203,7 @@ const ProductDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-20 lg:pb-0">
       <div className="max-w-[1600px] mx-auto px-3 py-4">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-gray-600 mb-4">
@@ -223,21 +274,45 @@ const ProductDetail = () => {
 
           {/* Right Side - Details */}
           <div>
+            {/* Brand */}
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-semibold text-[#5A0F1B] uppercase tracking-widest">🏷️ Brand:</span>
+              <span className="text-xs font-bold text-gray-800">Thrayam</span>
+            </div>
+
             <h1 className="text-2xl font-bold text-gray-900 mb-2">{product.name}</h1>
 
             {/* Rating */}
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-1">
               <div className="flex text-[#8A1F35]">
                 {[...Array(5)].map((_, i) => (
                   <FaStar
                     key={i}
-                    className={i < Math.floor(product.averageRating || 4.5) ? 'text-[#8A1F35]' : 'text-gray-300'}
+                    className={i < Math.floor(socialProof.rating) ? 'text-[#8A1F35]' : 'text-gray-300'}
                   />
                 ))}
               </div>
-              <span className="text-sm text-gray-600">
-                ({product.numReviews || 0} reviews)
+              <span className="text-sm font-semibold text-[#8A1F35]">{socialProof.rating.toFixed(1)}</span>
+              <span className="text-sm text-gray-500">({socialProof.reviews} reviews)</span>
+            </div>
+
+            {/* Happy Customers */}
+            <div className="flex items-center gap-1.5 mb-2">
+              <span className="text-xs text-gray-500">😊</span>
+              <span className="text-xs font-semibold text-green-700">500+ happy customers</span>
+              <span className="text-gray-300 text-xs">•</span>
+              <span className="text-xs text-gray-500">Trusted by families across India</span>
+            </div>
+
+            {/* Viewers Now */}
+            <div className="flex items-center gap-1.5 mb-3">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
               </span>
+              <p className="text-xs text-gray-600">
+                👀 <span className="font-bold text-gray-800">{socialProof.viewing} people</span> are viewing this right now
+              </p>
             </div>
 
             {/* Price */}
@@ -258,7 +333,58 @@ const ProductDetail = () => {
             </div>
 
             {/* Description */}
-            <p className="text-sm text-gray-700 mb-4 leading-relaxed">{product.description}</p>
+            <div
+              className="text-sm text-gray-700 mb-3 leading-relaxed product-description"
+              dangerouslySetInnerHTML={{ __html: product.description }}
+            />
+
+            {/* Social Proof — Sold Badge */}
+            <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg animate-pulse-slow">
+              <span className="text-lg">🔥</span>
+              <p className="text-xs font-semibold text-orange-700">
+                <span className="text-red-600 font-bold">{socialProof.sold} pieces</span> sold in the last{' '}
+                <span className="text-red-600 font-bold">{socialProof.hours} hours</span> — grab yours before it's gone! ⚡
+              </p>
+            </div>
+
+            {/* Stock Progress Bar */}
+            {product.stock > 0 && (() => {
+              const maxDisplay = 50;
+              const pct = Math.min((product.stock / maxDisplay) * 100, 100);
+              const isLow = product.stock <= 5;
+              const isMed = product.stock <= 15;
+              const barColor = isLow
+                ? 'bg-gradient-to-r from-red-500 to-red-600'
+                : isMed
+                ? 'bg-gradient-to-r from-orange-400 to-orange-500'
+                : 'bg-gradient-to-r from-[#5A0F1B] to-[#7A1525]';
+              const textColor = isLow ? 'text-red-600' : isMed ? 'text-orange-600' : 'text-[#5A0F1B]';
+              return (
+                <div className="mb-3">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-xs font-semibold text-gray-600">Availability</span>
+                    <span className={`text-xs font-bold ${textColor}`}>
+                      {isLow ? `⚠️ Only ${product.stock} left!` : isMed ? `⏳ ${product.stock} left — selling fast` : `✅ ${product.stock} in stock`}
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                    <div
+                      className={`h-2.5 rounded-full transition-all duration-700 ${barColor}`}
+                      style={{ width: `${Math.max(pct, 8)}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Free Shipping + Secure Checkout Strip */}
+            <div className="flex items-center gap-3 mb-3 p-2 bg-gray-50 rounded-lg border border-gray-100">
+              <span className="text-xs text-gray-700 flex items-center gap-1">🚚 <span className="font-semibold">Free shipping</span> above ₹999</span>
+              <span className="text-gray-300">|</span>
+              <span className="text-xs text-gray-700 flex items-center gap-1">🔒 <span className="font-semibold">Secure</span> checkout</span>
+              <span className="text-gray-300">|</span>
+              <span className="text-xs text-gray-700 flex items-center gap-1">↩️ <span className="font-semibold">7-day</span> returns</span>
+            </div>
 
             {/* Size Selection */}
             {product.sizes && product.sizes.length > 0 && (
@@ -345,14 +471,14 @@ const ProductDetail = () => {
                     <FaPlus className="text-gray-600" />
                   </button>
                 </div>
-                <span className="text-sm text-gray-600">
-                  {product.stock > 0 ? `${product.stock} items available` : 'Out of stock'}
-                </span>
+                {product.stock === 0 && (
+                  <span className="text-sm font-semibold text-red-600">Out of stock</span>
+                )}
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 mb-4">
+            <div className="flex gap-3 mb-3">
               <button
                 onClick={handleAddToCart}
                 disabled={product.stock === 0}
@@ -361,10 +487,27 @@ const ProductDetail = () => {
                 <FaShoppingCart />
                 {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
               </button>
+              <button
+                onClick={handleBuyNow}
+                disabled={product.stock === 0}
+                className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+              >
+                <FaBolt />
+                Buy Now
+              </button>
               <button className="bg-white hover:bg-gray-50 border-2 border-gray-200 text-gray-700 font-bold py-4 px-6 rounded-lg transition-all">
                 <FaHeart className="text-xl" />
               </button>
             </div>
+
+            {/* WhatsApp Share */}
+            <button
+              onClick={handleWhatsAppShare}
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 mb-4 bg-[#25D366] hover:bg-[#20bc5a] text-white font-semibold text-sm rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+            >
+              <FaWhatsapp className="text-lg" />
+              Share on WhatsApp
+            </button>
 
             {/* Product Info */}
             <div className="border-t border-gray-200 pt-4">
@@ -425,6 +568,26 @@ const ProductDetail = () => {
           </div>
         )}
       </div>
+
+      {/* Similar Products */}
+      {similarProducts.length > 0 && (
+        <div className="mt-6 bg-white rounded-lg shadow-sm p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-xs text-[#5A0F1B] font-semibold uppercase tracking-widest mb-0.5">You May Also Like</p>
+              <h2 className="text-lg md:text-xl font-serif font-bold text-gray-900">Similar Products</h2>
+            </div>
+            <div className="w-12 h-0.5 bg-gradient-to-r from-[#5A0F1B] to-transparent"></div>
+          </div>
+          <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
+            {similarProducts.map(p => (
+              <div key={p._id} className="flex-shrink-0 w-[160px] sm:w-[185px] md:w-[210px]">
+                <ProductCard product={p} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Image Lightbox Modal */}
       {showLightbox && (
@@ -514,6 +677,36 @@ const ProductDetail = () => {
           )}
         </div>
       )}
+
+      {/* Sticky Mobile Bottom Bar */}
+      {product.stock > 0 && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] px-4 py-3 flex gap-3">
+          <button
+            onClick={handleAddToCart}
+            className="flex-1 bg-gradient-to-r from-[#5A0F1B] to-[#7A1525] text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 text-sm shadow-lg active:scale-95 transition-transform"
+          >
+            <FaShoppingCart className="text-base" />
+            Add to Cart
+          </button>
+          <button
+            onClick={handleBuyNow}
+            className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 text-sm shadow-lg active:scale-95 transition-transform"
+          >
+            <FaBolt className="text-base" />
+            Buy Now
+          </button>
+          <button
+            onClick={handleWhatsAppShare}
+            className="w-12 h-12 bg-[#25D366] text-white rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-transform flex-shrink-0"
+            title="Share on WhatsApp"
+          >
+            <FaWhatsapp className="text-xl" />
+          </button>
+        </div>
+      )}
+
+      {/* WhatsApp Chat — product enquiry (global one is hidden on this route) */}
+      <WhatsAppChat product={product} />
     </div>
   );
 };
