@@ -230,7 +230,10 @@ const ProductDetail = () => {
           <div className="flex gap-3">
             {/* Thumbnail Images - Left Side */}
             {product.images && product.images.length > 1 && (
-              <div className="flex flex-col gap-2 w-20">
+              <div
+                className="flex flex-col gap-2 w-20 overflow-y-auto scrollbar-hide"
+                style={{ maxHeight: product.images.length > 5 ? '420px' : 'none' }}
+              >
                 {product.images.map((image, index) => (
                   <button
                     key={index}

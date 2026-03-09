@@ -80,14 +80,14 @@ const HeroSlider = () => {
 
   if (loading) {
     return (
-      <div className="relative h-[260px] sm:h-[380px] md:h-[600px] overflow-hidden bg-gradient-to-r from-[#5A0F1B]/5 to-white flex items-center justify-center">
+      <div className="relative h-[220px] sm:h-[320px] md:h-[520px] overflow-hidden bg-gradient-to-r from-[#5A0F1B]/5 to-white flex items-center justify-center">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#5A0F1B]"></div>
       </div>
     );
   }
 
   return (
-    <div className="relative h-[260px] sm:h-[380px] md:h-[600px] overflow-hidden bg-black">
+    <div className="relative h-[220px] sm:h-[320px] md:h-[520px] overflow-hidden">
       {slides.map((slide, index) => {
         const imageUrl = getSliderImage(slide);
 
@@ -98,35 +98,34 @@ const HeroSlider = () => {
               index === currentSlide ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            {/* Full image — contain on mobile so nothing is cropped */}
-            <img
-              src={imageUrl}
-              alt={slide.title}
-              className="w-full h-full object-contain md:object-cover"
-              style={{ filter: 'brightness(0.75)' }}
+            {/* Background image — always cover so no black bars */}
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${imageUrl})`, filter: 'brightness(0.65)' }}
             />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
+            {/* Strong gradient so text is always readable */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
 
-          <div className="relative container mx-auto px-4 h-full flex items-center">
-            <div className="max-w-2xl text-white space-y-2 md:space-y-6 animate-fadeIn">
-              <p className="text-[#f9c3cc] font-semibold text-xs md:text-lg tracking-wider uppercase">
-                {slide.subtitle}
-              </p>
-              <h1 className="text-xl sm:text-3xl md:text-6xl font-serif font-bold leading-tight">
-                {slide.title}
-              </h1>
-              <p className="text-sm md:text-xl text-gray-200 hidden sm:block">
-                {slide.description}
-              </p>
-              <Link
-                to={slide.link}
-                className="inline-block bg-gradient-to-r from-[#5A0F1B] to-[#7A1525] hover:from-[#7A1525] hover:to-[#8A1F35] text-white font-bold py-2 px-5 md:py-4 md:px-8 text-sm md:text-base rounded-full transition transform hover:scale-105 shadow-xl"
-              >
-                {slide.cta}
-              </Link>
+            <div className="relative container mx-auto px-4 h-full flex items-center">
+              <div className="max-w-lg text-white space-y-1.5 md:space-y-5">
+                <p className="text-[#f9c3cc] font-semibold text-[10px] sm:text-sm md:text-lg tracking-wider uppercase drop-shadow">
+                  {slide.subtitle}
+                </p>
+                <h1 className="text-lg sm:text-3xl md:text-5xl font-serif font-bold leading-tight drop-shadow-lg">
+                  {slide.title}
+                </h1>
+                <p className="text-xs sm:text-sm md:text-lg text-gray-200 hidden sm:block drop-shadow">
+                  {slide.description}
+                </p>
+                <Link
+                  to={slide.link}
+                  className="inline-block bg-gradient-to-r from-[#5A0F1B] to-[#7A1525] hover:from-[#7A1525] hover:to-[#8A1F35] text-white font-bold py-1.5 px-4 sm:py-2 sm:px-6 md:py-3 md:px-8 text-xs sm:text-sm md:text-base rounded-full transition transform hover:scale-105 shadow-xl"
+                >
+                  {slide.cta}
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
         );
       })}
 
