@@ -129,16 +129,16 @@ const HeroSlider = () => {
         );
       })}
 
-      {/* Navigation Arrows */}
+      {/* Navigation Arrows — desktop only */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white p-4 rounded-full transition z-10"
+        className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white p-4 rounded-full transition z-10"
       >
         <FaChevronLeft className="text-2xl" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white p-4 rounded-full transition z-10"
+        className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white p-4 rounded-full transition z-10"
       >
         <FaChevronRight className="text-2xl" />
       </button>

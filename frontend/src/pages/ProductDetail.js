@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaStar, FaHeart, FaShoppingCart, FaCheck, FaMinus, FaPlus, FaWhatsapp, FaBolt } from 'react-icons/fa';
+import { FaStar, FaHeart, FaShoppingCart, FaCheck, FaMinus, FaPlus, FaWhatsapp, FaBolt, FaChevronUp, FaChevronDown } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 // useAuth removed - cart now works for both logged in and guest users
 import { toast } from 'react-toastify';
@@ -26,6 +26,7 @@ const ProductDetail = () => {
   const [showLightbox, setShowLightbox] = useState(false);
   const [similarProducts, setSimilarProducts] = useState([]);
   const [productReels, setProductReels] = useState([]);
+  const thumbStripRef = useRef(null);
   const { addToCart } = useCart();
 
   // Social proof — stable random values per product page load
@@ -230,28 +231,51 @@ const ProductDetail = () => {
           <div className="flex gap-3">
             {/* Thumbnail Images - Left Side */}
             {product.images && product.images.length > 1 && (
-              <div
-                className="flex flex-col gap-2 w-20 overflow-y-auto scrollbar-hide"
-                style={{ maxHeight: product.images.length > 5 ? '420px' : 'none' }}
-              >
-                {product.images.map((image, index) => (
+              <div className="flex flex-col items-center gap-1 w-20">
+                {/* Scroll Up */}
+                {product.images.length > 5 && (
                   <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
-                      selectedImage === index
-                        ? 'border-[#5A0F1B] ring-2 ring-[#5A0F1B]/20'
-                        : 'border-gray-200 hover:border-[#5A0F1B]/50'
-                    }`}
+                    onClick={() => thumbStripRef.current?.scrollBy({ top: -88, behavior: 'smooth' })}
+                    className="w-full flex items-center justify-center py-1 text-gray-400 hover:text-[#5A0F1B] transition-colors"
                   >
-                    <img
-                      src={getProductImage(product, index)}
-                      alt={`${product.name} ${index + 1}`}
-                      onError={(e) => handleImageError(e, 'product')}
-                      className="w-full h-full object-cover"
-                    />
+                    <FaChevronUp className="text-xs" />
                   </button>
-                ))}
+                )}
+
+                <div
+                  ref={thumbStripRef}
+                  className="flex flex-col gap-2 w-20 overflow-y-auto scrollbar-hide"
+                  style={{ maxHeight: product.images.length > 5 ? '400px' : 'none' }}
+                >
+                  {product.images.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImage(index)}
+                      className={`flex-shrink-0 aspect-square rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
+                        selectedImage === index
+                          ? 'border-[#5A0F1B] ring-2 ring-[#5A0F1B]/20'
+                          : 'border-gray-200 hover:border-[#5A0F1B]/50'
+                      }`}
+                    >
+                      <img
+                        src={getProductImage(product, index)}
+                        alt={`${product.name} ${index + 1}`}
+                        onError={(e) => handleImageError(e, 'product')}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+
+                {/* Scroll Down */}
+                {product.images.length > 5 && (
+                  <button
+                    onClick={() => thumbStripRef.current?.scrollBy({ top: 88, behavior: 'smooth' })}
+                    className="w-full flex items-center justify-center py-1 text-gray-400 hover:text-[#5A0F1B] transition-colors"
+                  >
+                    <FaChevronDown className="text-xs" />
+                  </button>
+                )}
               </div>
             )}
 
