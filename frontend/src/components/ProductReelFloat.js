@@ -67,7 +67,7 @@ const ProductReelFloat = ({ reels }) => {
       >
         <button
           onClick={handleOpen}
-          className="group relative w-20 h-28 rounded-2xl overflow-hidden shadow-2xl border-2 border-white hover:border-[#5A0F1B] transition-all duration-200 hover:scale-105 active:scale-95"
+          className="group relative w-24 h-32 rounded-2xl overflow-hidden shadow-2xl border-2 border-white hover:border-[#5A0F1B] transition-all duration-200 hover:scale-105 active:scale-95"
           title="Watch product video"
         >
           {/* Live video preview in stamp — muted, looping */}
@@ -84,8 +84,8 @@ const ProductReelFloat = ({ reels }) => {
 
           {/* Subtle dark vignette + centered play icon */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10 flex items-center justify-center">
-            <div className="w-9 h-9 rounded-full bg-white/80 group-hover:bg-white flex items-center justify-center shadow-lg transition-all group-hover:scale-110">
-              <FaPlay className="text-[#5A0F1B] text-sm ml-0.5" />
+            <div className="w-7 h-7 rounded-full bg-white/80 group-hover:bg-white flex items-center justify-center shadow-lg transition-all group-hover:scale-110">
+              <FaPlay className="text-[#5A0F1B] text-[9px] ml-0.5" />
             </div>
           </div>
 

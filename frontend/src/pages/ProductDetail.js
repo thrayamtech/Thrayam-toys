@@ -488,8 +488,8 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3 mb-3">
+            {/* Action Buttons — hidden on mobile (sticky bar handles it) */}
+            <div className="hidden lg:flex gap-3 mb-3">
               <button
                 onClick={handleAddToCart}
                 disabled={product.stock === 0}
