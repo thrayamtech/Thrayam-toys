@@ -1,301 +1,284 @@
 import React from 'react';
-import { FaAward, FaShippingFast, FaLock, FaPhone } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { FaLeaf, FaHeart, FaShieldAlt, FaTruck, FaStar, FaArrowRight } from 'react-icons/fa';
 
-const AboutUs = () => {
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-pink-50">
-      {/* Hero Section  */}
-      <div className="bg-gradient-to-r from-[#5A0F1B] to-[#8A1F35] text-white py-20">
-        <div className="max-w-[1600px] mx-auto px-6 text-center">
-          <h1 className="text-5xl md:text-6xl font-serif font-bold mb-6">About Thrayam Threads</h1>
-          <p className="text-2xl text-pink-100 font-light italic mb-4">
-            Threads that tell your story
-          </p>
-          <p className="text-lg text-pink-200 max-w-3xl mx-auto">
-            Where every thread weaves a narrative of tradition, elegance, and your unique journey
-          </p>
+const C = {
+  skin:      '#F7EFE5',
+  skinLight: '#FDFAF6',
+  skinMid:   '#EDD8C0',
+  skinBorder:'#DFC09A',
+  wood:      '#6B4226',
+  dark:      '#2F1E14',
+  sage:      '#8FAF9D',
+  sageMid:   '#D6E8DE',
+  sageDark:  '#4F7A65',
+  gold:      '#DDBB72',
+  goldMid:   '#F4EAC8',
+  terra:     '#C96A4A',
+  terraMid:  '#F5D8CC',
+};
+
+const VALUES = [
+  {
+    icon: <FaLeaf />,
+    title: 'Safe & Non-Toxic',
+    desc: 'Every toy is made from natural wood, finished with child-safe, non-toxic paints and sealants — certified for peace of mind.',
+    bg: C.sageMid, color: C.sageDark,
+  },
+  {
+    icon: <FaHeart />,
+    title: 'Handcrafted with Love',
+    desc: 'Each toy is shaped, sanded, and painted by skilled artisans. No two pieces are exactly alike — that\'s the beauty of handmade.',
+    bg: C.terraMid, color: C.terra,
+  },
+  {
+    icon: <FaStar />,
+    title: 'Developmental Play',
+    desc: 'Our toys are thoughtfully designed for each age stage — supporting motor skills, creativity, and cognitive growth through play.',
+    bg: C.goldMid, color: C.wood,
+  },
+  {
+    icon: <FaShieldAlt />,
+    title: 'Quality Guaranteed',
+    desc: 'Rigorous quality checks ensure every toy that reaches your child is durable, splinter-free, and built to last.',
+    bg: C.sageMid, color: C.sageDark,
+  },
+];
+
+const STATS = [
+  { value: '1,000+', label: 'Happy Families' },
+  { value: '50+',    label: 'Toy Designs'    },
+  { value: '100%',   label: 'Non-Toxic'      },
+  { value: '4.9★',   label: 'Avg. Rating'    },
+];
+
+const AboutUs = () => (
+  <div className="min-h-screen" style={{ background: C.skin }}>
+
+    {/* ── Hero ── */}
+    <section className="relative overflow-hidden py-20 md:py-28" style={{ background: C.dark }}>
+      {/* Blobs */}
+      <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full pointer-events-none"
+        style={{ background: C.wood, opacity: 0.3, transform: 'translate(20%,-20%)' }} />
+      <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full pointer-events-none"
+        style={{ background: C.sage, opacity: 0.12 }} />
+
+      <div className="container-custom relative text-center">
+        <span className="inline-block font-sans text-[11px] font-semibold tracking-widest uppercase px-4 py-1.5 rounded-full mb-5"
+          style={{ background: `${C.gold}20`, color: C.gold, border: `1px solid ${C.gold}40` }}>
+          Our Story
+        </span>
+        <h1 className="font-serif mb-5 leading-tight"
+          style={{ color: C.skin, fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
+          Crafted for Curious Minds,<br />Built for Little Hands
+        </h1>
+        <p className="font-sans text-base md:text-lg leading-relaxed max-w-2xl mx-auto"
+          style={{ color: `${C.skinMid}CC` }}>
+          Thrayam Toys was born from a simple belief — that the best toys are ones that are safe,
+          beautiful, and genuinely nurture a child's development.
+        </p>
+      </div>
+    </section>
+
+    {/* ── Stats strip ── */}
+    <div style={{ background: C.wood }}>
+      <div className="container-custom py-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {STATS.map(({ value, label }) => (
+            <div key={label} className="text-center">
+              <p className="font-serif text-2xl md:text-3xl leading-none mb-1" style={{ color: C.gold }}>{value}</p>
+              <p className="font-sans text-xs" style={{ color: `${C.skinMid}AA` }}>{label}</p>
+            </div>
+          ))}
         </div>
       </div>
-
-      {/* Our Story Section with Line Art */}
-      <section className="py-20 bg-white">
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <h2 className="text-4xl font-serif font-bold text-[#5A0F1B] mb-6">
-                Our Story
-              </h2>
-              <div className="space-y-5 text-gray-700 text-lg leading-relaxed">
-                <p>
-                  At <span className="font-bold text-[#5A0F1B]">Thrayam Threads</span>,
-                  we believe that every saree is more than just fabric – it's a canvas where stories unfold,
-                  memories are woven, and traditions come alive. Each thread carries the essence of
-                  craftsmanship, the whispers of heritage, and the promise of timeless beauty.
-                </p>
-                <p>
-                  Our name, <span className="font-semibold">Thrayam</span>, symbolizes the sacred trinity
-                  of creation, preservation, and transformation. Just as life flows through these eternal
-                  cycles, we curate sarees that honor the past, celebrate the present, and inspire the future.
-                </p>
-                <p>
-                  We are storytellers through textiles, connecting you with the artisans whose hands breathe
-                  life into every weave, every motif, every color. When you drape a saree from Thrayam Threads,
-                  you're not just wearing a garment – you're embracing a narrative, carrying forward a legacy,
-                  and telling <span className="italic font-medium">your</span> story.
-                </p>
-              </div>
-            </div>
-
-            {/* Decorative Line Art */}
-            <div className="relative flex items-center justify-center">
-              <div className="relative w-full h-96">
-                {/* Abstract Thread Pattern */}
-                <svg viewBox="0 0 400 400" className="w-full h-full opacity-80">
-                  {/* Flowing threads */}
-                  <path
-                    d="M 50 200 Q 100 100, 200 150 T 350 200"
-                    stroke="#5A0F1B"
-                    strokeWidth="2"
-                    fill="none"
-                    strokeDasharray="5,5"
-                  />
-                  <path
-                    d="M 50 220 Q 120 280, 200 240 T 350 220"
-                    stroke="#8A1F35"
-                    strokeWidth="2"
-                    fill="none"
-                  />
-                  <path
-                    d="M 50 180 Q 80 120, 200 160 T 350 180"
-                    stroke="#5A0F1B"
-                    strokeWidth="1.5"
-                    fill="none"
-                    opacity="0.6"
-                  />
-
-                  {/* Decorative dots representing fabric weave */}
-                  <circle cx="100" cy="150" r="4" fill="#5A0F1B" opacity="0.7" />
-                  <circle cx="200" cy="180" r="5" fill="#8A1F35" />
-                  <circle cx="300" cy="200" r="4" fill="#5A0F1B" opacity="0.7" />
-                  <circle cx="150" cy="240" r="3" fill="#8A1F35" opacity="0.6" />
-                  <circle cx="250" cy="220" r="4" fill="#5A0F1B" />
-
-                  {/* Flowing saree drape outline */}
-                  <path
-                    d="M 150 100 Q 180 120, 200 100 Q 220 80, 250 100 L 250 300 Q 220 320, 200 300 Q 180 280, 150 300 Z"
-                    stroke="#5A0F1B"
-                    strokeWidth="2"
-                    fill="none"
-                    opacity="0.4"
-                  />
-
-                  {/* Traditional motifs */}
-                  <circle cx="200" cy="200" r="60" stroke="#8A1F35" strokeWidth="1" fill="none" opacity="0.3" />
-                  <circle cx="200" cy="200" r="50" stroke="#5A0F1B" strokeWidth="1" fill="none" opacity="0.3" />
-                </svg>
-
-                {/* Floating text elements */}
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-                  <div className="text-6xl font-serif text-[#5A0F1B] opacity-10">
-                    ✦
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Our Philosophy Section */}
-      <section className="py-20 bg-gradient-to-b from-pink-50 to-white">
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-
-            {/* Decorative Line Art - Thread Weaving */}
-            <div className="relative flex items-center justify-center order-2 lg:order-1">
-              <div className="relative w-full h-96">
-                <svg viewBox="0 0 400 400" className="w-full h-full opacity-70">
-                  {/* Loom-inspired pattern */}
-                  <line x1="50" y1="50" x2="50" y2="350" stroke="#5A0F1B" strokeWidth="1" opacity="0.4" />
-                  <line x1="100" y1="50" x2="100" y2="350" stroke="#5A0F1B" strokeWidth="1" opacity="0.4" />
-                  <line x1="150" y1="50" x2="150" y2="350" stroke="#8A1F35" strokeWidth="1.5" opacity="0.5" />
-                  <line x1="200" y1="50" x2="200" y2="350" stroke="#5A0F1B" strokeWidth="2" opacity="0.6" />
-                  <line x1="250" y1="50" x2="250" y2="350" stroke="#8A1F35" strokeWidth="1.5" opacity="0.5" />
-                  <line x1="300" y1="50" x2="300" y2="350" stroke="#5A0F1B" strokeWidth="1" opacity="0.4" />
-                  <line x1="350" y1="50" x2="350" y2="350" stroke="#5A0F1B" strokeWidth="1" opacity="0.4" />
-
-                  {/* Horizontal weave */}
-                  <path d="M 50 100 Q 200 120, 350 100" stroke="#8A1F35" strokeWidth="2" fill="none" opacity="0.5" />
-                  <path d="M 50 150 Q 200 130, 350 150" stroke="#5A0F1B" strokeWidth="2" fill="none" opacity="0.6" />
-                  <path d="M 50 200 Q 200 220, 350 200" stroke="#8A1F35" strokeWidth="2" fill="none" opacity="0.5" />
-                  <path d="M 50 250 Q 200 230, 350 250" stroke="#5A0F1B" strokeWidth="2" fill="none" opacity="0.6" />
-                  <path d="M 50 300 Q 200 320, 350 300" stroke="#8A1F35" strokeWidth="2" fill="none" opacity="0.5" />
-
-                  {/* Central medallion */}
-                  <circle cx="200" cy="200" r="40" stroke="#5A0F1B" strokeWidth="2" fill="none" />
-                  <circle cx="200" cy="200" r="30" stroke="#8A1F35" strokeWidth="1" fill="none" opacity="0.6" />
-                  <text x="200" y="210" textAnchor="middle" fill="#5A0F1B" fontSize="20" fontWeight="bold" fontFamily="serif">TT</text>
-                </svg>
-              </div>
-            </div>
-
-            <div className="order-1 lg:order-2">
-              <h2 className="text-4xl font-serif font-bold text-[#5A0F1B] mb-6">
-                Our Philosophy
-              </h2>
-              <div className="space-y-5 text-gray-700 text-lg leading-relaxed">
-                <p>
-                  Every woman has a story – of dreams pursued, battles won, love cherished, and moments
-                  celebrated. At Thrayam Threads, we honor these narratives by offering sarees that resonate
-                  with your journey.
-                </p>
-                <div className="space-y-4 ml-4 border-l-4 border-[#5A0F1B] pl-6">
-                  <div>
-                    <h3 className="font-bold text-[#5A0F1B] mb-2">Authenticity</h3>
-                    <p className="text-gray-600">
-                      We source directly from master weavers, ensuring each piece carries the soul of traditional craftsmanship.
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-[#5A0F1B] mb-2">Heritage</h3>
-                    <p className="text-gray-600">
-                      From ancient weaving techniques to timeless designs, we preserve the legacy of Indian textiles.
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-[#5A0F1B] mb-2">Your Story</h3>
-                    <p className="text-gray-600">
-                      Whether it's your first saree or your hundredth, we believe each drape should feel like a chapter in your story.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Values Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-serif font-bold text-[#5A0F1B] mb-4">
-              Why Choose Thrayam Threads
-            </h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              We weave trust, quality, and care into every interaction
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-gradient-to-b from-pink-50 to-white p-8 rounded-xl shadow-md text-center hover:shadow-xl transition-all transform hover:-translate-y-2">
-              <div className="bg-gradient-to-br from-[#5A0F1B] to-[#8A1F35] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <FaAward className="text-4xl text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-[#5A0F1B] mb-3">Authentic Craftsmanship</h3>
-              <p className="text-gray-600">
-                Every saree is sourced directly from skilled artisans, ensuring authenticity and preserving traditional weaving arts.
-              </p>
-            </div>
-
-            <div className="bg-gradient-to-b from-pink-50 to-white p-8 rounded-xl shadow-md text-center hover:shadow-xl transition-all transform hover:-translate-y-2">
-              <div className="bg-gradient-to-br from-[#5A0F1B] to-[#8A1F35] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <FaShippingFast className="text-4xl text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-[#5A0F1B] mb-3">Swift & Secure Delivery</h3>
-              <p className="text-gray-600">
-                Your treasured saree reaches you safely and swiftly. Free delivery on orders above ₹999.
-              </p>
-            </div>
-
-            <div className="bg-gradient-to-b from-pink-50 to-white p-8 rounded-xl shadow-md text-center hover:shadow-xl transition-all transform hover:-translate-y-2">
-              <div className="bg-gradient-to-br from-[#5A0F1B] to-[#8A1F35] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <FaLock className="text-4xl text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-[#5A0F1B] mb-3">Secure Shopping</h3>
-              <p className="text-gray-600">
-                Shop with confidence using our secure payment gateway. Your trust is our priority.
-              </p>
-            </div>
-
-            <div className="bg-gradient-to-b from-pink-50 to-white p-8 rounded-xl shadow-md text-center hover:shadow-xl transition-all transform hover:-translate-y-2">
-              <div className="bg-gradient-to-br from-[#5A0F1B] to-[#8A1F35] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <FaPhone className="text-4xl text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-[#5A0F1B] mb-3">Dedicated Support</h3>
-              <p className="text-gray-600">
-                Our team is here to guide you through your journey, ensuring every experience is memorable.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* The Thrayam Promise */}
-      <section className="py-20 bg-gradient-to-b from-pink-50 to-white">
-        <div className="max-w-[1000px] mx-auto px-6 text-center">
-          <div className="relative">
-            {/* Decorative border */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-[#5A0F1B] to-transparent"></div>
-
-            <div className="pt-8">
-              <h2 className="text-4xl font-serif font-bold text-[#5A0F1B] mb-8">
-                The Thrayam Promise
-              </h2>
-
-              <div className="space-y-6 text-lg text-gray-700 leading-relaxed">
-                <p className="text-xl italic text-[#5A0F1B] font-serif">
-                  "When you choose Thrayam Threads, you're not just purchasing a saree –
-                  you're becoming part of a legacy."
-                </p>
-
-                <p>
-                  We promise to bring you sarees that are as unique as your story. Each piece in our
-                  collection is carefully curated to ensure it meets our exacting standards of quality,
-                  authenticity, and beauty.
-                </p>
-
-                <p>
-                  From the first thread to the final drape, from the artisan's loom to your wardrobe,
-                  we ensure that every step honors the sacred craft of weaving and celebrates you –
-                  the woman who brings these threads to life.
-                </p>
-              </div>
-            </div>
-
-            {/* Decorative bottom border */}
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-[#5A0F1B] to-transparent mt-8"></div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-[#5A0F1B] to-[#8A1F35] text-white relative overflow-hidden">
-        {/* Background decorative elements */}
-        <div className="absolute inset-0 opacity-10">
-          <svg className="w-full h-full" viewBox="0 0 800 400">
-            <path d="M 0 200 Q 200 100, 400 200 T 800 200" stroke="white" strokeWidth="2" fill="none" />
-            <path d="M 0 220 Q 200 320, 400 220 T 800 220" stroke="white" strokeWidth="2" fill="none" />
-          </svg>
-        </div>
-
-        <div className="max-w-[1400px] mx-auto px-6 text-center relative z-10">
-          <h2 className="text-4xl md:text-5xl font-serif font-bold mb-6">
-            Begin Your Story With Us
-          </h2>
-          <p className="text-xl text-pink-100 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Explore our curated collection and find the saree that speaks to your soul
-          </p>
-          <a
-            href="/products"
-            className="inline-block bg-white text-[#5A0F1B] px-10 py-4 rounded-full font-bold text-lg hover:bg-pink-50 transition-all shadow-2xl hover:shadow-3xl transform hover:-translate-y-1"
-          >
-            Discover Our Collection
-          </a>
-        </div>
-      </section>
     </div>
-  );
-};
+
+    {/* ── Our Story ── */}
+    <section className="py-16 md:py-24" style={{ background: C.skinLight }}>
+      <div className="container-custom">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
+          <div>
+            <span className="inline-block font-sans text-[11px] font-semibold tracking-widest uppercase px-4 py-1.5 rounded-full mb-4"
+              style={{ background: C.sageMid, color: C.sageDark }}>
+              Who We Are
+            </span>
+            <h2 className="font-serif mb-6" style={{ color: C.dark, fontSize: 'clamp(1.6rem, 3vw, 2.4rem)' }}>
+              From a Family Workshop<br />to Families Across India
+            </h2>
+            <div className="space-y-4 font-sans text-base leading-relaxed" style={{ color: C.wood }}>
+              <p>
+                <span className="font-bold" style={{ color: C.dark }}>Thrayam Toys</span> started
+                as a small workshop in Kanyakumari, Tamil Nadu, where our founders — passionate
+                parents themselves — believed that wooden toys were disappearing from children's lives,
+                replaced by plastic and screens.
+              </p>
+              <p>
+                We began crafting simple wooden shapes, teethers, and stackers for our own children.
+                Friends and family noticed. Orders started coming in. Today, we ship handcrafted wooden
+                toys to families across India — each piece made with the same care as that very first toy.
+              </p>
+              <p>
+                Every toy in our collection is a promise: that your child will play with something
+                safe, beautiful, and made to last far beyond childhood.
+              </p>
+            </div>
+          </div>
+
+          {/* Decorative wood SVG */}
+          <div className="flex items-center justify-center">
+            <div className="relative w-full max-w-sm">
+              <div className="rounded-3xl overflow-hidden aspect-square flex items-center justify-center"
+                style={{ background: C.skinMid, border: `2px solid ${C.skinBorder}` }}>
+                <svg viewBox="0 0 400 400" className="w-4/5 h-4/5 opacity-70">
+                  {/* Wood grain rings */}
+                  <ellipse cx="200" cy="200" rx="160" ry="155" fill="none" stroke={C.wood} strokeWidth="2" opacity="0.25" />
+                  <ellipse cx="200" cy="200" rx="130" ry="125" fill="none" stroke={C.wood} strokeWidth="2" opacity="0.3" />
+                  <ellipse cx="200" cy="200" rx="100" ry="96" fill="none" stroke={C.wood} strokeWidth="2" opacity="0.35" />
+                  <ellipse cx="200" cy="200" rx="70" ry="67" fill="none" stroke={C.wood} strokeWidth="2" opacity="0.4" />
+                  <ellipse cx="200" cy="200" rx="40" ry="38" fill="none" stroke={C.wood} strokeWidth="2" opacity="0.5" />
+                  {/* Center dot */}
+                  <circle cx="200" cy="200" r="10" fill={C.wood} opacity="0.5" />
+                  {/* Grain lines */}
+                  <path d="M 80 200 Q 140 180, 200 200 Q 260 220, 320 200" stroke={C.wood} strokeWidth="1.5" fill="none" opacity="0.2" />
+                  <path d="M 80 215 Q 140 195, 200 215 Q 260 235, 320 215" stroke={C.wood} strokeWidth="1" fill="none" opacity="0.15" />
+                  {/* Toy icons */}
+                  <text x="200" y="215" textAnchor="middle" fontSize="64" style={{ fontFamily: 'serif' }}>🪵</text>
+                </svg>
+              </div>
+              {/* Floating badge */}
+              <div className="absolute -bottom-4 -right-4 px-4 py-3 rounded-2xl shadow-lg"
+                style={{ background: C.dark, border: `1.5px solid ${C.gold}40` }}>
+                <p className="font-serif text-lg leading-none" style={{ color: C.gold }}>Since</p>
+                <p className="font-serif text-2xl font-bold leading-none" style={{ color: C.skin }}>2022</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* ── Our Values ── */}
+    <section className="py-16 md:py-20" style={{ background: C.skin }}>
+      <div className="container-custom">
+        <div className="text-center mb-12">
+          <span className="inline-block font-sans text-[11px] font-semibold tracking-widest uppercase px-4 py-1.5 rounded-full mb-4"
+            style={{ background: C.goldMid, color: C.wood }}>
+            What We Stand For
+          </span>
+          <h2 className="font-serif" style={{ color: C.dark, fontSize: 'clamp(1.6rem, 3vw, 2.4rem)' }}>
+            Our Promise to Every Parent
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {VALUES.map(({ icon, title, desc, bg, color }) => (
+            <div key={title}
+              className="group flex flex-col p-6 rounded-2xl transition-all duration-300 hover:-translate-y-1"
+              style={{ background: '#fff', border: `1.5px solid ${C.skinMid}`, boxShadow: '0 2px 14px rgba(47,30,20,0.06)' }}>
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 text-xl transition-transform duration-300 group-hover:scale-110"
+                style={{ background: bg, color }}>
+                {icon}
+              </div>
+              <h3 className="font-serif mb-2 text-lg leading-tight" style={{ color: C.dark }}>{title}</h3>
+              <p className="font-sans text-sm leading-relaxed" style={{ color: C.wood }}>{desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* ── Philosophy ── */}
+    <section className="py-16 md:py-20" style={{ background: C.skinLight }}>
+      <div className="container-custom">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
+          {/* Left — Philosophy points */}
+          <div>
+            <span className="inline-block font-sans text-[11px] font-semibold tracking-widest uppercase px-4 py-1.5 rounded-full mb-4"
+              style={{ background: C.terraMid, color: C.terra }}>
+              Our Philosophy
+            </span>
+            <h2 className="font-serif mb-6" style={{ color: C.dark, fontSize: 'clamp(1.6rem, 3vw, 2.4rem)' }}>
+              Play is How Children Learn Best
+            </h2>
+            <div className="space-y-5">
+              {[
+                { title: 'Open-Ended Play',  desc: 'We design toys without a single "right" answer. A wooden block can be a car, a house, or a rocket — limited only by imagination.' },
+                { title: 'Age-Appropriate',  desc: 'Every toy is mapped to a developmental stage, from sensory teethers for newborns to strategy games for older children.' },
+                { title: 'Eco-Conscious',    desc: 'We use sustainably sourced wood and water-based, non-toxic finishes — good for children and the planet.' },
+              ].map(({ title, desc }) => (
+                <div key={title} className="flex gap-4">
+                  <div className="w-1 rounded-full flex-shrink-0 mt-1" style={{ background: C.terra, minHeight: 16 }} />
+                  <div>
+                    <h3 className="font-sans font-bold text-sm mb-1" style={{ color: C.dark }}>{title}</h3>
+                    <p className="font-sans text-sm leading-relaxed" style={{ color: C.wood }}>{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right — quote card */}
+          <div className="flex items-center justify-center">
+            <div className="rounded-3xl p-8 md:p-10 text-center max-w-sm"
+              style={{ background: C.dark, border: `1.5px solid ${C.gold}30` }}>
+              <span className="font-serif block mb-4" style={{ color: C.gold, fontSize: '3rem', lineHeight: 1 }}>"</span>
+              <p className="font-serif italic leading-relaxed mb-6"
+                style={{ color: C.skin, fontSize: '1.1rem' }}>
+                The best toy a child can have is one that fires the imagination — and then gets out of the way.
+              </p>
+              <div className="w-12 h-0.5 mx-auto mb-4" style={{ background: `${C.gold}60` }} />
+              <p className="font-sans text-xs font-semibold tracking-wide" style={{ color: `${C.skinMid}99` }}>
+                — Our guiding principle
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* ── Delivery Promise ── */}
+    <section className="py-10" style={{ background: C.skinMid }}>
+      <div className="container-custom">
+        <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
+          {[
+            { icon: <FaTruck />, text: 'Free Shipping above ₹499', color: C.wood },
+            { icon: <FaShieldAlt />, text: '7-Day Easy Returns', color: C.sageDark },
+            { icon: <FaLeaf />, text: '100% Non-Toxic Materials', color: C.sageDark },
+            { icon: <FaHeart />, text: 'Made with Love in India', color: C.terra },
+          ].map(({ icon, text, color }) => (
+            <div key={text} className="flex items-center gap-2.5">
+              <span style={{ color, fontSize: '1.1rem' }}>{icon}</span>
+              <span className="font-sans font-semibold text-sm" style={{ color: C.dark }}>{text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {/* ── CTA ── */}
+    <section className="py-16 md:py-20 relative overflow-hidden" style={{ background: C.dark }}>
+      <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full pointer-events-none"
+        style={{ background: C.wood, opacity: 0.25 }} />
+      <div className="container-custom relative text-center">
+        <h2 className="font-serif mb-4" style={{ color: C.skin, fontSize: 'clamp(1.8rem, 4vw, 3rem)' }}>
+          Ready to Find the Perfect Toy?
+        </h2>
+        <p className="font-sans text-sm md:text-base mb-8 max-w-lg mx-auto leading-relaxed"
+          style={{ color: `${C.skinMid}BB` }}>
+          Browse our collection of handcrafted wooden toys — each one carefully made for your child's age and stage.
+        </p>
+        <Link to="/products"
+          className="inline-flex items-center gap-2 font-sans font-bold px-8 py-3.5 rounded-2xl transition-all duration-200"
+          style={{ background: C.terra, color: '#fff', boxShadow: '0 4px 18px rgba(201,106,74,0.35)' }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
+          Shop All Toys <FaArrowRight className="text-xs" />
+        </Link>
+      </div>
+    </section>
+
+  </div>
+);
 
 export default AboutUs;

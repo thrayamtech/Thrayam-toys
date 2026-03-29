@@ -39,8 +39,8 @@ router.route('/coupons/:id')
 
 // Category management routes
 router.get('/categories', protect, authorize('admin'), getCategories);
-router.post('/categories', protect, authorize('admin'), createCategory);
-router.put('/categories/:id', protect, authorize('admin'), updateCategory);
+router.post('/categories', protect, authorize('admin'), upload.single('image'), createCategory);
+router.put('/categories/:id', protect, authorize('admin'), upload.single('image'), updateCategory);
 router.delete('/categories/:id', protect, authorize('admin'), deleteCategory);
 
 module.exports = router;

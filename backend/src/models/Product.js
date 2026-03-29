@@ -55,18 +55,27 @@ const productSchema = new mongoose.Schema({
     ref: 'Category',
     required: [true, 'Product category is required']
   },
-  fabric: {
+  // Toy-specific: age group
+  ageGroup: {
     type: String,
-    required: [true, 'Fabric type is required'],
-    enum: ['Cotton', 'Silk', 'Mul Mul Cotton', 'Kanjivaram Silk', 'Banarasi', 'Georgette', 'Chiffon', 'Linen', 'Art Silk', 'Net', 'Satin', 'Crepe', 'Other']
+    enum: ['0-6 months', '6-12 months', '1-2 years', '2-3 years', '3-5 years', '5-8 years', '8-12 years', '12+ years', 'All Ages'],
+    default: 'All Ages'
   },
+  // Toy material type
+  material: {
+    type: String,
+    enum: ['Wood', 'Plastic', 'Fabric', 'Metal', 'Rubber', 'Foam', 'Electronic', 'Paper/Cardboard', 'Mixed', 'Other'],
+    default: 'Other'
+  },
+  // Skills the toy develops
+  skills: [{
+    type: String,
+    enum: ['Motor Skills', 'Cognitive Development', 'Creative Play', 'Social Skills', 'Language Development', 'STEM', 'Emotional Development', 'Sensory Play', 'Physical Activity']
+  }],
+  // Color variants
   colors: [{
     name: String,
     hexCode: String
-  }],
-  sizes: [{
-    type: String,
-    enum: ['Free Size', 'S', 'M', 'L', 'XL', 'XXL']
   }],
   images: [{
     url: String,
@@ -109,15 +118,34 @@ const productSchema = new mongoose.Schema({
   },
   tags: [String],
   specifications: {
-    length: String,
-    width: String,
     weight: String,
-    blousePiece: {
+    dimensions: String,
+    numPieces: Number,
+    batteryRequired: {
       type: Boolean,
       default: false
     },
-    washCare: String,
-    occasion: [String]
+    batteryType: String,
+    playType: [String],   // Indoor, Outdoor, Bath, Sensory, etc.
+    safetyWarning: String // e.g. "Not suitable for children under 3 years"
+  },
+  brand: {
+    type: String,
+    trim: true
+  },
+  seoTitle: {
+    type: String,
+    trim: true,
+    maxlength: 80
+  },
+  seoDescription: {
+    type: String,
+    trim: true,
+    maxlength: 200
+  },
+  seoKeywords: {
+    type: String,
+    trim: true
   },
   createdAt: {
     type: Date,
@@ -155,5 +183,7 @@ productSchema.index({ name: 'text', description: 'text', tags: 'text' });
 productSchema.index({ price: 1 });
 productSchema.index({ createdAt: -1 });
 productSchema.index({ averageRating: -1 });
+productSchema.index({ ageGroup: 1 });
+productSchema.index({ material: 1 });
 
 module.exports = mongoose.model('Product', productSchema);

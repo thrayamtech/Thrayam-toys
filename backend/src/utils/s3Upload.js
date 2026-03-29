@@ -12,12 +12,12 @@ const s3Client = new S3Client({
   }
 });
 
-// Generate unique filename
+// Generate unique filename under thrayam-toys/ root folder
 const generateFileName = (originalname, folder = 'products') => {
   const timestamp = Date.now();
   const randomString = crypto.randomBytes(8).toString('hex');
   const ext = path.extname(originalname);
-  return `${folder}/${timestamp}-${randomString}${ext}`;
+  return `thrayam-toys/${folder}/${timestamp}-${randomString}${ext}`;
 };
 
 // Upload file to S3

@@ -1,5 +1,6 @@
 const Category = require('../models/Category');
 const Product = require('../models/Product');
+const { uploadToS3, deleteFromS3, extractS3Key } = require('../utils/s3Upload');
 
 // @desc    Get all categories
 // @route   GET /api/categories
@@ -73,10 +74,18 @@ exports.createCategory = async (req, res) => {
       });
     }
 
+    // Upload image to S3 if provided
+    let imageUrl = undefined;
+    if (req.file) {
+      const uploadResult = await uploadToS3(req.file, 'categories');
+      imageUrl = uploadResult.url;
+    }
+
     // Create category
     const category = await Category.create({
       name: name.trim(),
-      description: description ? description.trim() : ''
+      description: description ? description.trim() : '',
+      ...(imageUrl && { image: imageUrl }),
     });
 
     console.log('Category created successfully:', category._id);
@@ -129,6 +138,19 @@ exports.updateCategory = async (req, res) => {
     const updateData = {};
     if (name && name.trim() !== '') updateData.name = name.trim();
     if (description !== undefined) updateData.description = description ? description.trim() : '';
+
+    // Handle image upload
+    if (req.file) {
+      // Delete old image from S3 if it's an S3 URL
+      if (category.image && category.image.startsWith('http')) {
+        const oldKey = extractS3Key(category.image);
+        if (oldKey) {
+          try { await deleteFromS3(oldKey); } catch (e) { console.warn('Old image delete failed:', e.message); }
+        }
+      }
+      const uploadResult = await uploadToS3(req.file, 'categories');
+      updateData.image = uploadResult.url;
+    }
 
     console.log('Update data:', updateData);
 

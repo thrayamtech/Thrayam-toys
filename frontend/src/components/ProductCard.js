@@ -1,209 +1,226 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaStar, FaHeart, FaEye } from 'react-icons/fa';
+import { FaStar, FaHeart, FaShoppingCart } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 import { getProductImage, handleImageError } from '../utils/imageHelper';
 import { generateProductAltText } from '../utils/seo';
 
+const C = {
+  skin:    '#F7EFE5',
+  skinMid: '#EDD8C0',
+  skinLight: '#FDFAF6',
+  wood:    '#6B4226',
+  dark:    '#2F1E14',
+  sage:    '#8FAF9D',
+  sageMid: '#D6E8DE',
+  gold:    '#DDBB72',
+  goldMid: '#F4EAC8',
+  terra:   '#C96A4A',
+  terraMid:'#F5D8CC',
+};
+
+// Age badge colors using palette
+const AGE_STYLE = {
+  '0-6 months':  { bg: '#D6E8DE', color: '#274336' },
+  '6-12 months': { bg: '#F4EAC8', color: '#4A2D18' },
+  '1-2 years':   { bg: '#F5D8CC', color: '#4A2D18' },
+  '2-3 years':   { bg: '#EDD8C0', color: '#2F1E14' },
+  '3-5 years':   { bg: '#D6E8DE', color: '#274336' },
+  '5-8 years':   { bg: '#F4EAC8', color: '#4A2D18' },
+  '8-12 years':  { bg: '#F5D8CC', color: '#4A2D18' },
+  '12+ years':   { bg: '#EDD8C0', color: '#2F1E14' },
+  'All Ages':    { bg: '#EDD8C0', color: '#6B4226' },
+};
+
+const AGE_EMOJI = {
+  '0-6 months': '👶', '6-12 months': '🍼', '1-2 years': '🧸',
+  '2-3 years': '🎨', '3-5 years': '🚂', '5-8 years': '🔧',
+  '8-12 years': '🔬', '12+ years': '🎯', 'All Ages': '🌟',
+};
+
 const ProductCard = ({ product }) => {
-  const [showSizeDropdown, setShowSizeDropdown] = useState(false);
-  const [selectedSize, setSelectedSize] = useState('');
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [imgIdx, setImgIdx] = useState(0);
+  const [adding, setAdding] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
   const { addToCart } = useCart();
 
-  const hasMultipleSizes = product.sizes && product.sizes.length > 1;
-  const hasMultipleImages = product.images && product.images.length > 1;
+  const hasMulti = product.images?.length > 1;
 
-  const handleAddToCart = async (size = '') => {
-    const finalSize = size || selectedSize || product.sizes?.[0] || 'Free Size';
-    const finalColor = product.colors?.[0]?.name || 'Default';
-
+  const handleAddToCart = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setAdding(true);
     try {
-      await addToCart(product._id, 1, finalSize, finalColor);
-      // Don't show duplicate toast - addToCart already shows success
-      setShowSizeDropdown(false);
-      setSelectedSize('');
-    } catch (error) {
-      console.error('Add to cart error:', error);
-      // Don't show duplicate toast - addToCart already shows error
-    }
+      await addToCart(product._id, 1, '', product.colors?.[0]?.name || 'Default');
+    } catch (err) { console.error(err); }
+    finally { setAdding(false); }
   };
 
-  const handleQuickSelect = () => {
-    if (hasMultipleSizes) {
-      setShowSizeDropdown(!showSizeDropdown);
-    } else {
-      handleAddToCart();
-    }
-  };
+  const discount = product.discountPrice
+    ? Math.round(((product.price - product.discountPrice) / product.price) * 100) : 0;
 
-  const discountPercent = product.discountPrice
-    ? Math.round(((product.price - product.discountPrice) / product.price) * 100)
-    : 0;
+  const ageGroup = product.ageGroup || 'All Ages';
+  const ageStyle = AGE_STYLE[ageGroup] || AGE_STYLE['All Ages'];
+  const ageEmoji = AGE_EMOJI[ageGroup] || '🌟';
 
   return (
-    <div className="group relative bg-white overflow-hidden transition-all duration-300">
-      {/* Image Container */}
-      <div
-        className="relative overflow-hidden bg-gray-50 aspect-[3/4]"
-        onMouseEnter={() => hasMultipleImages && setCurrentImageIndex(1)}
-        onMouseLeave={() => setCurrentImageIndex(0)}
-      >
-        <Link to={`/products/${product._id}`}>
+    <div
+      className="group relative flex flex-col transition-all duration-300 hover:-translate-y-1.5"
+      style={{
+        background: C.skinLight,
+        borderRadius: '1.25rem',
+        border: `1px solid ${C.skinMid}`,
+        boxShadow: '0 2px 12px rgba(47,30,20,0.07)',
+        overflow: 'hidden',
+      }}
+      onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(47,30,20,0.14)'}
+      onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 12px rgba(47,30,20,0.07)'}>
+
+      {/* ── Image Area ── */}
+      <div className="relative overflow-hidden"
+        style={{ aspectRatio: '1/1', background: C.skin }}
+        onMouseEnter={() => hasMulti && setImgIdx(1)}
+        onMouseLeave={() => setImgIdx(0)}>
+
+        <Link to={`/products/${product._id}`} className="block w-full h-full">
           <img
-            src={getProductImage(product, currentImageIndex)}
-            alt={generateProductAltText(product, currentImageIndex)}
-            onError={(e) => handleImageError(e, 'product')}
-            className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+            src={getProductImage(product, imgIdx)}
+            alt={generateProductAltText(product, imgIdx)}
+            onError={e => handleImageError(e, 'product')}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
         </Link>
 
-        {/* Discount Badge - Top Left */}
-        {product.discountPrice && (
-          <div className="absolute top-2 left-0 z-10">
-            <div className="bg-gradient-to-r from-[#5A0F1B] to-[#8A1F35] text-white pl-2.5 pr-3 py-1 rounded-r-full shadow-md">
-              <span className="text-[11px] font-bold">-{discountPercent}%</span>
+        {/* Discount badge — top left */}
+        {discount > 0 && (
+          <div className="absolute top-0 left-0 z-10">
+            <div className="font-sans font-extrabold text-[12px] leading-none px-2.5 py-2 flex flex-col items-center"
+              style={{
+                background: C.terra,
+                color: '#fff',
+                borderBottomRightRadius: '14px',
+                minWidth: 44,
+                boxShadow: '2px 2px 10px rgba(201,106,74,0.35)',
+              }}>
+              <span style={{ fontSize: 13 }}>{discount}%</span>
+              <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.05em', opacity: 0.9 }}>OFF</span>
             </div>
           </div>
         )}
 
-        {/* Stock Badge - Top Right (if low stock) */}
-        {product.stock < 10 && product.stock > 0 && (
-          <div className="absolute top-2 right-2 z-10">
-            <div className="bg-red-500 text-white px-2 py-0.5 rounded-full shadow-md">
-              <span className="text-[9px] font-bold uppercase">Low Stock</span>
-            </div>
+        {/* Low stock — only show if no discount badge occupying that corner */}
+        {product.stock < 10 && product.stock > 0 && discount === 0 && (
+          <div className="absolute top-2.5 left-2.5 z-10">
+            <span className="px-2 py-1 rounded-lg font-sans font-bold text-[9px]"
+              style={{ background: C.gold, color: C.dark, boxShadow: '0 2px 6px rgba(221,187,114,0.4)' }}>
+              Only {product.stock} left
+            </span>
           </div>
         )}
 
-        {/* Hover Icons - Top Right */}
-        <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-          <button
-            className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-[#5A0F1B] hover:text-white transition-all duration-200"
-            title="Add to Wishlist"
-          >
-            <FaHeart className="text-xs" />
-          </button>
-          <Link
-            to={`/products/${product._id}`}
-            className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-[#5A0F1B] hover:text-white transition-all duration-200"
-            title="Quick View"
-          >
-            <FaEye className="text-xs" />
-          </Link>
-        </div>
+        {/* Out of stock */}
+        {product.stock === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center z-10"
+            style={{ background: 'rgba(47,30,20,0.45)' }}>
+            <span className="px-3 py-1.5 rounded-xl font-sans font-semibold text-sm"
+              style={{ background: C.skinLight, color: C.dark }}>
+              Out of Stock
+            </span>
+          </div>
+        )}
 
-        {/* Hover Overlay with Select Options Button */}
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center pb-4 z-10">
-          <button
-            onClick={handleQuickSelect}
-            className="bg-gradient-to-r from-[#5A0F1B] to-[#8A1F35] hover:from-[#7A1525] hover:to-[#8A1F35] text-white px-8 py-2.5 rounded-lg font-semibold text-sm shadow-xl transition-all duration-300 transform hover:scale-105"
-          >
-            {hasMultipleSizes ? 'Select options' : 'Add to cart'}
-          </button>
-        </div>
+        {/* Wishlist icon */}
+        <button
+          className="absolute top-2.5 right-2.5 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 opacity-0 group-hover:opacity-100"
+          style={{ background: wishlisted ? C.terra : C.skinLight, color: wishlisted ? '#fff' : C.wood, boxShadow: '0 2px 8px rgba(47,30,20,0.15)' }}
+          onClick={e => { e.preventDefault(); e.stopPropagation(); setWishlisted(w => !w); }}
+          title="Wishlist">
+          <FaHeart className="text-xs" />
+        </button>
 
-        {/* Size Selector Modal - Compact Design */}
-        {showSizeDropdown && hasMultipleSizes && (
-          <>
-            {/* Backdrop with smooth fade */}
-            <div
-              className="fixed inset-0 bg-black/30 z-30 transition-opacity duration-200"
-              onClick={() => setShowSizeDropdown(false)}
-              style={{ animation: 'fadeIn 0.2s ease-out' }}
-            />
-
-            {/* Compact Size Selector - Bottom positioned */}
-            <div
-              className="absolute left-1/2 bottom-2 transform -translate-x-1/2 bg-white rounded-xl shadow-2xl z-40 w-[92%] max-w-sm overflow-hidden"
-              style={{ animation: 'slideUpBottom 0.25s ease-out' }}
-            >
-              {/* Compact Content */}
-              <div className="p-4">
-                {/* Header with close */}
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-gray-900">Select Size</h3>
-                  <button
-                    onClick={() => setShowSizeDropdown(false)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-
-                {/* Size Selection - Compact Grid */}
-                <div className="mb-3">
-                  <div className="flex flex-wrap gap-2">
-                    {product.sizes.map((size, index) => (
-                      <button
-                        key={index}
-                        onClick={() => setSelectedSize(size)}
-                        className={`px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200 ${
-                          selectedSize === size
-                            ? 'border-[#5A0F1B] bg-[#5A0F1B] text-white shadow-md'
-                            : 'border-gray-300 bg-white text-gray-700 hover:border-[#5A0F1B]/60'
-                        }`}
-                      >
-                        {size}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Action Button */}
-                <button
-                  onClick={() => handleAddToCart(selectedSize)}
-                  disabled={!selectedSize}
-                  className={`w-full py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-200 ${
-                    selectedSize
-                      ? 'bg-gradient-to-r from-[#5A0F1B] to-[#8A1F35] hover:from-[#7A1525] hover:to-[#8A1F35] text-white shadow-lg hover:shadow-xl'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  }`}
-                >
-                  {selectedSize ? 'Add to Cart' : 'Select a size'}
-                </button>
-              </div>
-            </div>
-          </>
+        {/* Add to cart — bottom slide-up on hover */}
+        {product.stock > 0 && (
+          <div
+            className="absolute inset-x-0 bottom-0 flex items-end justify-center pb-3 z-10 transition-all duration-300 translate-y-full group-hover:translate-y-0"
+            style={{ background: 'linear-gradient(to top, rgba(47,30,20,0.65), transparent)' }}>
+            <button
+              onClick={handleAddToCart}
+              disabled={adding}
+              className="flex items-center gap-2 font-sans font-semibold text-xs px-5 py-2 rounded-xl transition-all duration-150 disabled:opacity-70"
+              style={{ background: C.terra, color: '#fff', boxShadow: '0 4px 16px rgba(201,106,74,0.45)' }}>
+              <FaShoppingCart className="text-[10px]" />
+              {adding ? 'Adding…' : 'Add to Cart'}
+            </button>
+          </div>
         )}
       </div>
 
-      {/* Product Info */}
-      <div className="p-3">
+      {/* ── Info Area ── */}
+      <div className="p-3 flex flex-col gap-1.5 flex-1">
+        {/* Age + Material badges */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-sans font-medium text-[10px]"
+            style={{ background: ageStyle.bg, color: ageStyle.color }}>
+            {ageEmoji} {ageGroup}
+          </span>
+          {product.material && product.material !== 'Other' && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full font-sans font-medium text-[10px]"
+              style={{ background: C.skinMid, color: C.wood }}>
+              {product.material}
+            </span>
+          )}
+        </div>
+
+        {/* Name */}
         <Link to={`/products/${product._id}`}>
-          <h3 className="text-sm font-medium text-gray-800 hover:text-[#5A0F1B] transition-colors duration-200 line-clamp-2 mb-2 h-10">
+          <h3 className="font-sans font-semibold text-base leading-snug line-clamp-2 transition-colors"
+            style={{ color: C.dark }}
+            onMouseEnter={e => e.currentTarget.style.color = C.terra}
+            onMouseLeave={e => e.currentTarget.style.color = C.dark}>
             {product.name}
           </h3>
         </Link>
 
-        {/* Rating */}
+        {/* Stars */}
         {product.averageRating > 0 && (
-          <div className="flex items-center mb-2">
-            <div className="flex text-[#8A1F35] text-xs">
+          <div className="flex items-center gap-1">
+            <div className="flex" style={{ color: C.gold }}>
               {[...Array(5)].map((_, i) => (
-                <FaStar
-                  key={i}
-                  className={i < Math.floor(product.averageRating) ? 'text-[#8A1F35]' : 'text-gray-200'}
-                />
+                <FaStar key={i} className="text-[10px]"
+                  style={{ color: i < Math.floor(product.averageRating) ? C.gold : C.skinMid }} />
               ))}
             </div>
+            <span className="font-sans text-[10px]" style={{ color: C.wood }}>({product.numReviews})</span>
           </div>
         )}
 
-        {/* Price */}
-        <div className="flex items-baseline gap-2">
-          {product.discountPrice && (
-            <span className="text-sm text-gray-400 line-through">
+        {/* Price row */}
+        <div className="mt-auto pt-1.5">
+          {product.discountPrice ? (
+            <div className="flex flex-col gap-0.5">
+              {/* Original price — struck out */}
+              <span className="font-sans text-xs line-through leading-none" style={{ color: `${C.wood}90` }}>
+                MRP ₹{product.price.toLocaleString()}
+              </span>
+              {/* Sale price + save badge */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-sans font-extrabold text-[22px] leading-none" style={{ color: C.terra }}>
+                  ₹{product.discountPrice.toLocaleString()}
+                </span>
+                <span className="font-sans font-semibold text-[10px] px-2 py-0.5 rounded-full"
+                  style={{ background: C.terraMid, color: C.terra }}>
+                  Save ₹{(product.price - product.discountPrice).toLocaleString()}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <span className="font-sans font-bold text-[22px] leading-none" style={{ color: C.dark }}>
               ₹{product.price.toLocaleString()}
             </span>
           )}
-          <span className="text-lg font-bold text-gray-900">
-            ₹{(product.discountPrice || product.price).toLocaleString()}
-          </span>
         </div>
+
       </div>
     </div>
   );

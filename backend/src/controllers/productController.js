@@ -24,9 +24,14 @@ exports.getProducts = async (req, res) => {
       query.category = req.query.category;
     }
 
-    // Fabric filter
-    if (req.query.fabric) {
-      query.fabric = req.query.fabric;
+    // Age group filter
+    if (req.query.ageGroup) {
+      query.ageGroup = req.query.ageGroup;
+    }
+
+    // Material filter
+    if (req.query.material) {
+      query.material = req.query.material;
     }
 
     // Price filter
@@ -34,11 +39,6 @@ exports.getProducts = async (req, res) => {
       query.price = {};
       if (req.query.minPrice) query.price.$gte = parseFloat(req.query.minPrice);
       if (req.query.maxPrice) query.price.$lte = parseFloat(req.query.maxPrice);
-    }
-
-    // Size filter
-    if (req.query.size) {
-      query.sizes = req.query.size;
     }
 
     // Featured filter
@@ -141,19 +141,27 @@ exports.createProduct = async (req, res) => {
       discountPrice: req.body.discountPrice ? parseFloat(req.body.discountPrice) : undefined,
       category: req.body.category,
       stock: parseInt(req.body.stock) || 0,
-      fabric: req.body.fabric,
+      ageGroup: req.body.ageGroup || 'All Ages',
+      material: req.body.material || 'Other',
+      skills: req.body.skills ? JSON.parse(req.body.skills) : [],
+      brand: req.body.brand || '',
       isFeatured: req.body.isFeatured === 'true',
       colors: req.body.colors ? JSON.parse(req.body.colors) : [],
-      sizes: req.body.sizes ? JSON.parse(req.body.sizes) : [],
-      mainImageIndex: parseInt(req.body.mainImageIndex) || 0
+      mainImageIndex: parseInt(req.body.mainImageIndex) || 0,
+      seoTitle: req.body.seoTitle || '',
+      seoDescription: req.body.seoDescription || '',
+      seoKeywords: req.body.seoKeywords || '',
     };
 
     // Add specifications if provided
-    if (req.body.length || req.body.width || req.body.weight) {
+    if (req.body.weight || req.body.dimensions || req.body.numPieces || req.body.safetyWarning) {
       productData.specifications = {
-        length: req.body.length || '',
-        width: req.body.width || '',
-        weight: req.body.weight || ''
+        weight: req.body.weight || '',
+        dimensions: req.body.dimensions || '',
+        numPieces: req.body.numPieces ? parseInt(req.body.numPieces) : undefined,
+        batteryRequired: req.body.batteryRequired === 'true',
+        batteryType: req.body.batteryType || '',
+        safetyWarning: req.body.safetyWarning || ''
       };
     }
 
@@ -222,8 +230,22 @@ exports.updateProduct = async (req, res) => {
     if (updateData.colors && typeof updateData.colors === 'string') {
       updateData.colors = JSON.parse(updateData.colors);
     }
-    if (updateData.sizes && typeof updateData.sizes === 'string') {
-      updateData.sizes = JSON.parse(updateData.sizes);
+    if (updateData.skills && typeof updateData.skills === 'string') {
+      updateData.skills = JSON.parse(updateData.skills);
+    }
+    // Convert boolean fields
+    if (updateData.isFeatured) updateData.isFeatured = updateData.isFeatured === 'true';
+    if (updateData.batteryRequired) updateData.batteryRequired = updateData.batteryRequired === 'true';
+    // Build specifications from flat fields
+    if (updateData.weight || updateData.dimensions || updateData.numPieces || updateData.safetyWarning) {
+      updateData.specifications = {
+        weight: updateData.weight || '',
+        dimensions: updateData.dimensions || '',
+        numPieces: updateData.numPieces ? parseInt(updateData.numPieces) : undefined,
+        batteryRequired: updateData.batteryRequired === 'true',
+        batteryType: updateData.batteryType || '',
+        safetyWarning: updateData.safetyWarning || ''
+      };
     }
 
     // Handle existing images from request

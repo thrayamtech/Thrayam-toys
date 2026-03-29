@@ -33,14 +33,22 @@ const AdminProducts = () => {
     discountPrice: '',
     category: '',
     stock: '',
-    fabric: '',
-    length: '',
-    width: '',
+    ageGroup: 'All Ages',
+    material: 'Other',
+    skills: [],
+    brand: '',
     weight: '',
-    colors: [],  // Changed to array
-    sizes: [],   // Changed to array
+    dimensions: '',
+    numPieces: '',
+    batteryRequired: false,
+    batteryType: '',
+    safetyWarning: '',
+    colors: [],
     isFeatured: false,
-    images: []
+    images: [],
+    seoTitle: '',
+    seoDescription: '',
+    seoKeywords: '',
   });
   const [imageFiles, setImageFiles] = useState([]);
   const [previewImages, setPreviewImages] = useState([]);
@@ -49,14 +57,24 @@ const AdminProducts = () => {
   const [colorName, setColorName] = useState('');
   const [colorHex, setColorHex] = useState('#000000');
 
-  // Fabric options matching backend enum
-  const fabricOptions = [
-    'Cotton', 'Silk', 'Mul Mul Cotton', 'Kanjivaram Silk', 'Banarasi',
-    'Georgette', 'Chiffon', 'Linen', 'Art Silk', 'Net', 'Satin', 'Crepe', 'Other'
+  // Age group options
+  const ageGroupOptions = [
+    '0-6 months', '6-12 months', '1-2 years', '2-3 years',
+    '3-5 years', '5-8 years', '8-12 years', '12+ years', 'All Ages'
   ];
 
-  // Size options matching backend enum
-  const sizeOptions = ['Free Size', 'S', 'M', 'L', 'XL', 'XXL'];
+  // Material options
+  const materialOptions = [
+    'Wood', 'Plastic', 'Fabric', 'Metal', 'Rubber', 'Foam',
+    'Electronic', 'Paper/Cardboard', 'Mixed', 'Other'
+  ];
+
+  // Skill development options
+  const skillOptions = [
+    'Motor Skills', 'Cognitive Development', 'Creative Play',
+    'Social Skills', 'Language Development', 'STEM',
+    'Emotional Development', 'Sensory Play', 'Physical Activity'
+  ];
 
   useEffect(() => {
     fetchProducts();
@@ -203,11 +221,7 @@ const AdminProducts = () => {
       // Append all form fields
       Object.keys(formData).forEach(key => {
         if (key !== 'images') {
-          if (key === 'colors') {
-            // Colors is already an array of {name, hexCode} objects
-            submitData.append(key, JSON.stringify(formData[key]));
-          } else if (key === 'sizes') {
-            // Sizes is already an array
+          if (key === 'colors' || key === 'skills') {
             submitData.append(key, JSON.stringify(formData[key]));
           } else {
             submitData.append(key, formData[key]);
@@ -280,14 +294,22 @@ const AdminProducts = () => {
       discountPrice: product.discountPrice || '',
       category: product.category?._id || '',
       stock: product.stock || '',
-      fabric: product.fabric || '',
-      length: product.specifications?.length || '',
-      width: product.specifications?.width || '',
+      ageGroup: product.ageGroup || 'All Ages',
+      material: product.material || 'Other',
+      skills: Array.isArray(product.skills) ? product.skills : [],
+      brand: product.brand || '',
       weight: product.specifications?.weight || '',
+      dimensions: product.specifications?.dimensions || '',
+      numPieces: product.specifications?.numPieces || '',
+      batteryRequired: product.specifications?.batteryRequired || false,
+      batteryType: product.specifications?.batteryType || '',
+      safetyWarning: product.specifications?.safetyWarning || '',
       colors: Array.isArray(product.colors) ? product.colors : [],
-      sizes: Array.isArray(product.sizes) ? product.sizes : [],
       isFeatured: product.isFeatured || false,
-      images: product.images || []
+      images: product.images || [],
+      seoTitle: product.seoTitle || '',
+      seoDescription: product.seoDescription || '',
+      seoKeywords: product.seoKeywords || '',
     });
     setExistingImages(product.images || []);
     setPreviewImages([]);
@@ -318,18 +340,12 @@ const AdminProducts = () => {
     });
   };
 
-  // Toggle size selection
-  const toggleSize = (size) => {
-    if (formData.sizes.includes(size)) {
-      setFormData({
-        ...formData,
-        sizes: formData.sizes.filter(s => s !== size)
-      });
+  // Toggle skill selection
+  const toggleSkill = (skill) => {
+    if (formData.skills.includes(skill)) {
+      setFormData({ ...formData, skills: formData.skills.filter(s => s !== skill) });
     } else {
-      setFormData({
-        ...formData,
-        sizes: [...formData.sizes, size]
-      });
+      setFormData({ ...formData, skills: [...formData.skills, skill] });
     }
   };
 
@@ -341,14 +357,22 @@ const AdminProducts = () => {
       discountPrice: '',
       category: '',
       stock: '',
-      fabric: '',
-      length: '',
-      width: '',
+      ageGroup: 'All Ages',
+      material: 'Other',
+      skills: [],
+      brand: '',
       weight: '',
+      dimensions: '',
+      numPieces: '',
+      batteryRequired: false,
+      batteryType: '',
+      safetyWarning: '',
       colors: [],
-      sizes: [],
       isFeatured: false,
-      images: []
+      images: [],
+      seoTitle: '',
+      seoDescription: '',
+      seoKeywords: '',
     });
     setEditingProduct(null);
     setImageFiles([]);
@@ -424,6 +448,7 @@ const AdminProducts = () => {
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Age Group</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -453,6 +478,13 @@ const AdminProducts = () => {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
                         {product.category?.name || 'N/A'}
+                      </td>
+                      <td className="px-6 py-4">
+                        {product.ageGroup && (
+                          <span className="px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                            {product.ageGroup}
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4">
                         <div>
@@ -589,19 +621,47 @@ const AdminProducts = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Fabric *
+                    Age Group *
                   </label>
                   <select
-                    value={formData.fabric}
-                    onChange={(e) => setFormData({ ...formData, fabric: e.target.value })}
+                    value={formData.ageGroup}
+                    onChange={(e) => setFormData({ ...formData, ageGroup: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
                     required
                   >
-                    <option value="">Select Fabric</option>
-                    {fabricOptions.map(fabric => (
-                      <option key={fabric} value={fabric}>{fabric}</option>
+                    {ageGroupOptions.map(age => (
+                      <option key={age} value={age}>{age}</option>
                     ))}
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Material *
+                  </label>
+                  <select
+                    value={formData.material}
+                    onChange={(e) => setFormData({ ...formData, material: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
+                    required
+                  >
+                    {materialOptions.map(mat => (
+                      <option key={mat} value={mat}>{mat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Brand
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.brand}
+                    onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
+                    placeholder="e.g., Thrayam Toys"
+                  />
                 </div>
 
                 <div>
@@ -647,32 +707,6 @@ const AdminProducts = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Length (meters)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.length}
-                    onChange={(e) => setFormData({ ...formData, length: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
-                    step="0.01"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Width (meters)
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.width}
-                    onChange={(e) => setFormData({ ...formData, width: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
-                    step="0.01"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Weight (grams)
                   </label>
                   <input
@@ -680,7 +714,97 @@ const AdminProducts = () => {
                     value={formData.weight}
                     onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
+                    placeholder="e.g., 500"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Dimensions (L×W×H cm)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.dimensions}
+                    onChange={(e) => setFormData({ ...formData, dimensions: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
+                    placeholder="e.g., 30×20×15 cm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Number of Pieces
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.numPieces}
+                    onChange={(e) => setFormData({ ...formData, numPieces: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
+                    min="1"
+                    placeholder="e.g., 24"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Safety Warning
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.safetyWarning}
+                    onChange={(e) => setFormData({ ...formData, safetyWarning: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500"
+                    placeholder="e.g., Not suitable for children under 3 years"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="batteryRequired"
+                    checked={formData.batteryRequired}
+                    onChange={(e) => setFormData({ ...formData, batteryRequired: e.target.checked })}
+                    className="w-4 h-4 text-amber-500"
+                  />
+                  <label htmlFor="batteryRequired" className="text-sm font-medium text-gray-700">
+                    Battery Required
+                  </label>
+                  {formData.batteryRequired && (
+                    <input
+                      type="text"
+                      value={formData.batteryType}
+                      onChange={(e) => setFormData({ ...formData, batteryType: e.target.value })}
+                      className="flex-1 px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-amber-500"
+                      placeholder="Battery type (e.g., AA × 2)"
+                    />
+                  )}
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Skills Developed
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {skillOptions.map(skill => (
+                      <button
+                        key={skill}
+                        type="button"
+                        onClick={() => toggleSkill(skill)}
+                        className={`px-3 py-1.5 rounded-full border-2 text-sm font-medium transition ${
+                          formData.skills.includes(skill)
+                            ? 'border-amber-500 bg-amber-50 text-amber-700'
+                            : 'border-gray-300 bg-white text-gray-600 hover:border-amber-300'
+                        }`}
+                      >
+                        {skill}
+                      </button>
+                    ))}
+                  </div>
+                  {formData.skills.length > 0 && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      Selected: {formData.skills.join(', ')}
+                    </p>
+                  )}
                 </div>
 
                 <div className="md:col-span-2">
@@ -737,33 +861,6 @@ const AdminProducts = () => {
                       </div>
                     )}
                   </div>
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Available Sizes
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {sizeOptions.map(size => (
-                      <button
-                        key={size}
-                        type="button"
-                        onClick={() => toggleSize(size)}
-                        className={`px-4 py-2 rounded-lg border-2 transition ${
-                          formData.sizes.includes(size)
-                            ? 'border-amber-500 bg-amber-50 text-amber-700'
-                            : 'border-gray-300 bg-white text-gray-700 hover:border-amber-300'
-                        }`}
-                      >
-                        {size}
-                      </button>
-                    ))}
-                  </div>
-                  {formData.sizes.length > 0 && (
-                    <p className="text-sm text-gray-600 mt-2">
-                      Selected: {formData.sizes.join(', ')}
-                    </p>
-                  )}
                 </div>
 
                 <div className="md:col-span-2">
@@ -923,6 +1020,79 @@ const AdminProducts = () => {
                     Mark as Featured Product
                   </label>
                 </div>
+              </div>
+
+              {/* SEO Section */}
+              <div className="border border-amber-200 rounded-lg p-4 bg-amber-50 space-y-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-base font-semibold text-amber-800">SEO Settings</span>
+                  <span className="text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">Optional</span>
+                </div>
+                <p className="text-xs text-amber-700">
+                  Leave blank to auto-generate from product name, description, and category. Custom values override the defaults.
+                </p>
+
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-sm font-medium text-gray-700">SEO Title</label>
+                    <span className={`text-xs ${formData.seoTitle.length > 60 ? 'text-red-500 font-medium' : 'text-gray-400'}`}>
+                      {formData.seoTitle.length}/60
+                    </span>
+                  </div>
+                  <input
+                    type="text"
+                    value={formData.seoTitle}
+                    onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500 text-sm"
+                    placeholder={formData.name ? `${formData.name} – Buy Online India | Thrayam Toys` : 'e.g., Wooden Stacking Rings – Buy Online India | Thrayam Toys'}
+                    maxLength={80}
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Keep under 60 characters for best display in Google</p>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="text-sm font-medium text-gray-700">SEO Description</label>
+                    <span className={`text-xs ${formData.seoDescription.length > 160 ? 'text-red-500 font-medium' : 'text-gray-400'}`}>
+                      {formData.seoDescription.length}/160
+                    </span>
+                  </div>
+                  <textarea
+                    value={formData.seoDescription}
+                    onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500 text-sm resize-none"
+                    placeholder="e.g., Buy handcrafted wooden stacking rings for babies. Non-toxic, Montessori-inspired, safe for 6+ months. Free shipping above ₹499."
+                    rows={3}
+                    maxLength={200}
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Keep under 160 characters for best display in Google</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">SEO Keywords</label>
+                  <input
+                    type="text"
+                    value={formData.seoKeywords}
+                    onChange={(e) => setFormData({ ...formData, seoKeywords: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-amber-500 text-sm"
+                    placeholder="e.g., wooden stacking rings, baby toys India, Montessori toys"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Comma-separated keywords related to this product</p>
+                </div>
+
+                {/* Google Preview */}
+                {(formData.seoTitle || formData.name) && (
+                  <div className="border border-gray-200 rounded-lg p-3 bg-white">
+                    <p className="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">Google Preview</p>
+                    <p className="text-[#1a0dab] text-base font-medium leading-tight truncate">
+                      {formData.seoTitle || (formData.name ? `${formData.name} – Buy Online India | Thrayam Toys` : '')}
+                    </p>
+                    <p className="text-[#006621] text-xs mt-0.5">thrayamtoys.com › products › ...</p>
+                    <p className="text-[#545454] text-sm mt-1 line-clamp-2">
+                      {formData.seoDescription || 'Buy this product at Thrayam Toys. Handcrafted wooden toys for babies and toddlers. Safe, non-toxic, Montessori-inspired. Free shipping above ₹499 across India.'}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-3 pt-4">

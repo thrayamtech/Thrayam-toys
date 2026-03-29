@@ -2,282 +2,300 @@ import React, { useState } from 'react';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock, FaWhatsapp, FaPaperPlane } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
+const C = {
+  skin:      '#F7EFE5',
+  skinLight: '#FDFAF6',
+  skinMid:   '#EDD8C0',
+  skinBorder:'#DFC09A',
+  wood:      '#6B4226',
+  dark:      '#2F1E14',
+  sage:      '#8FAF9D',
+  sageMid:   '#D6E8DE',
+  sageDark:  '#4F7A65',
+  gold:      '#DDBB72',
+  goldMid:   '#F4EAC8',
+  terra:     '#C96A4A',
+  terraMid:  '#F5D8CC',
+};
+
+const inputStyle = {
+  width: '100%',
+  padding: '10px 16px',
+  border: `1.5px solid ${C.skinMid}`,
+  borderRadius: 12,
+  background: C.skinLight,
+  color: C.dark,
+  fontFamily: 'DM Sans, sans-serif',
+  fontSize: '0.875rem',
+  outline: 'none',
+};
+
+const CONTACT_CARDS = [
+  {
+    icon: <FaPhone />,
+    title: 'Call Us',
+    sub: 'Mon–Sat, 10 AM – 7 PM',
+    value: '+91 88072 59471',
+    href: 'tel:+918807259471',
+    bg: C.goldMid, color: C.wood,
+  },
+  {
+    icon: <FaEnvelope />,
+    title: 'Email Us',
+    sub: 'Reply within 24 hours',
+    value: 'info@thrayamtoys.com',
+    href: 'mailto:info@thrayamtoys.com',
+    bg: C.sageMid, color: C.sageDark,
+  },
+  {
+    icon: <FaWhatsapp />,
+    title: 'WhatsApp',
+    sub: 'Chat with us instantly',
+    value: 'Start a Chat',
+    href: 'https://wa.me/918807259471',
+    bg: '#DCFCE7', color: '#15803D',
+    external: true,
+  },
+];
+
 const ContactUs = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: ''
-  });
-
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
   const [loading, setLoading] = useState(false);
+  const [focused, setFocused] = useState('');
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     setLoading(true);
-
-    // Simulate form submission
     setTimeout(() => {
-      toast.success('Thank you for contacting us! We will get back to you soon.');
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
-      });
+      toast.success('Message sent! We\'ll get back to you soon.');
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
       setLoading(false);
     }, 1000);
   };
 
+  const fieldStyle = name => ({
+    ...inputStyle,
+    borderColor: focused === name ? C.gold : C.skinMid,
+    boxShadow: focused === name ? `0 0 0 3px ${C.gold}30` : 'none',
+    transition: 'border-color 0.2s, box-shadow 0.2s',
+  });
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-[#5A0F1B] to-[#7A1525] text-white py-16">
-        <div className="max-w-[1600px] mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4">Get In Touch</h1>
-          <p className="text-lg text-white/90 max-w-2xl mx-auto">
-            Have a question? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+    <div className="min-h-screen" style={{ background: C.skin }}>
+
+      {/* ── Hero ── */}
+      <section className="relative overflow-hidden py-16 md:py-22" style={{ background: C.dark }}>
+        <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full pointer-events-none"
+          style={{ background: C.wood, opacity: 0.28 }} />
+        <div className="absolute -bottom-10 -left-10 w-48 h-48 rounded-full pointer-events-none"
+          style={{ background: C.sage, opacity: 0.1 }} />
+        <div className="container-custom relative text-center py-4">
+          <span className="inline-block font-sans text-[11px] font-semibold tracking-widest uppercase px-4 py-1.5 rounded-full mb-5"
+            style={{ background: `${C.gold}20`, color: C.gold, border: `1px solid ${C.gold}40` }}>
+            Contact Us
+          </span>
+          <h1 className="font-serif mb-4" style={{ color: C.skin, fontSize: 'clamp(1.8rem, 4vw, 3rem)' }}>
+            We'd Love to Hear from You
+          </h1>
+          <p className="font-sans text-sm md:text-base max-w-xl mx-auto leading-relaxed"
+            style={{ color: `${C.skinMid}CC` }}>
+            Have a question about an order, a product, or just want to say hi? We're here to help.
           </p>
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-[1400px] mx-auto px-4 py-12">
-        {/* Contact Information Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow border-t-4 border-[#5A0F1B]">
-            <div className="bg-[#5A0F1B]/10 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FaPhone className="text-2xl text-[#5A0F1B]" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-800 mb-2">Call Us</h3>
-            <p className="text-sm text-gray-600 mb-2">Mon-Sat (10 AM - 7 PM)</p>
-            <a href="tel:+918807259471" className="text-[#5A0F1B] font-semibold hover:text-[#7A1525]">
-              +91 88072 59471
-            </a>
-          </div>
+      <div className="container-custom py-12">
 
-          <div className="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow border-t-4 border-[#5A0F1B]">
-            <div className="bg-[#5A0F1B]/10 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FaEnvelope className="text-2xl text-[#5A0F1B]" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-800 mb-2">Email Us</h3>
-            <p className="text-sm text-gray-600 mb-2">We'll respond within 24 hours</p>
-            <a href="mailto:info@thrayamthreads.com" className="text-[#5A0F1B] font-semibold hover:text-[#7A1525]">
-              info@thrayamthreads.com
+        {/* ── Contact cards ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-12">
+          {CONTACT_CARDS.map(({ icon, title, sub, value, href, bg, color, external }) => (
+            <a key={title} href={href} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              className="flex flex-col items-center text-center p-6 rounded-2xl transition-all duration-300 hover:-translate-y-1 group"
+              style={{ background: '#fff', border: `1.5px solid ${C.skinMid}`, boxShadow: '0 2px 14px rgba(47,30,20,0.07)' }}>
+              <div className="w-13 h-13 w-12 h-12 rounded-2xl flex items-center justify-center mb-4 text-lg transition-transform duration-300 group-hover:scale-110"
+                style={{ background: bg, color }}>
+                {icon}
+              </div>
+              <h3 className="font-serif mb-1" style={{ color: C.dark, fontSize: '1.05rem' }}>{title}</h3>
+              <p className="font-sans text-xs mb-2" style={{ color: C.wood }}>{sub}</p>
+              <span className="font-sans font-semibold text-sm" style={{ color }}>{value}</span>
             </a>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow border-t-4 border-[#5A0F1B]">
-            <div className="bg-[#5A0F1B]/10 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
-              <FaWhatsapp className="text-2xl text-[#5A0F1B]" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-800 mb-2">WhatsApp</h3>
-            <p className="text-sm text-gray-600 mb-2">Chat with us instantly</p>
-            <a
-              href="https://wa.me/918807259471"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#5A0F1B] font-semibold hover:text-[#7A1525]"
-            >
-              Start Chat
-            </a>
-          </div>
+          ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Contact Form */}
-          <div className="bg-white rounded-lg shadow-md p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Send Us a Message</h2>
-            <p className="text-gray-600 mb-6">
-              Fill out the form below and we'll get back to you as soon as possible
+        {/* ── Form + Info ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+          {/* Form — wider */}
+          <div className="lg:col-span-3 rounded-2xl p-7 md:p-8"
+            style={{ background: '#fff', border: `1.5px solid ${C.skinMid}`, boxShadow: '0 2px 16px rgba(47,30,20,0.07)' }}>
+            <h2 className="font-serif mb-1" style={{ color: C.dark, fontSize: '1.4rem' }}>Send Us a Message</h2>
+            <p className="font-sans text-sm mb-6" style={{ color: C.wood }}>
+              Fill out the form and we'll respond as soon as possible.
             </p>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Name */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block font-sans text-xs font-semibold mb-1.5" style={{ color: C.dark }}>
                   Your Name *
                 </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5A0F1B] focus:border-transparent"
+                <input type="text" name="name" value={formData.name} onChange={handleChange} required
                   placeholder="Enter your name"
-                />
+                  style={fieldStyle('name')}
+                  onFocus={() => setFocused('name')} onBlur={() => setFocused('')} />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Email + Phone */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block font-sans text-xs font-semibold mb-1.5" style={{ color: C.dark }}>
                     Email Address *
                   </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5A0F1B] focus:border-transparent"
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} required
                     placeholder="your@email.com"
-                  />
+                    style={fieldStyle('email')}
+                    onFocus={() => setFocused('email')} onBlur={() => setFocused('')} />
                 </div>
-
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1.5">
+                  <label className="block font-sans text-xs font-semibold mb-1.5" style={{ color: C.dark }}>
                     Phone Number
                   </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5A0F1B] focus:border-transparent"
+                  <input type="tel" name="phone" value={formData.phone} onChange={handleChange}
                     placeholder="+91 XXXXX XXXXX"
-                  />
+                    style={fieldStyle('phone')}
+                    onFocus={() => setFocused('phone')} onBlur={() => setFocused('')} />
                 </div>
               </div>
 
+              {/* Subject */}
               <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block font-sans text-xs font-semibold mb-1.5" style={{ color: C.dark }}>
                   Subject *
                 </label>
-                <select
-                  id="subject"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5A0F1B] focus:border-transparent"
-                >
+                <select name="subject" value={formData.subject} onChange={handleChange} required
+                  style={fieldStyle('subject')}
+                  onFocus={() => setFocused('subject')} onBlur={() => setFocused('')}>
                   <option value="">Select a subject</option>
                   <option value="product-inquiry">Product Inquiry</option>
                   <option value="order-status">Order Status</option>
-                  <option value="return-exchange">Return/Exchange</option>
-                  <option value="bulk-order">Bulk Order</option>
+                  <option value="return-exchange">Return / Exchange</option>
+                  <option value="bulk-order">Bulk / Gift Order</option>
                   <option value="feedback">Feedback</option>
                   <option value="other">Other</option>
                 </select>
               </div>
 
+              {/* Message */}
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block font-sans text-xs font-semibold mb-1.5" style={{ color: C.dark }}>
                   Your Message *
                 </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                  rows="5"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5A0F1B] focus:border-transparent resize-none"
-                  placeholder="Tell us how we can help you..."
-                ></textarea>
+                <textarea name="message" value={formData.message} onChange={handleChange} required
+                  rows={5} placeholder="How can we help you?"
+                  style={{ ...fieldStyle('message'), resize: 'none' }}
+                  onFocus={() => setFocused('message')} onBlur={() => setFocused('')} />
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-[#5A0F1B] to-[#7A1525] text-white py-3 px-6 rounded-lg font-bold hover:from-[#7A1525] hover:to-[#8A1F35] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
-              >
+              {/* Submit */}
+              <button type="submit" disabled={loading}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-sans font-bold text-sm transition-all duration-200 disabled:opacity-60"
+                style={{ background: C.terra, color: '#fff', boxShadow: '0 4px 16px rgba(201,106,74,0.3)' }}
+                onMouseEnter={e => { if (!loading) e.currentTarget.style.opacity = '0.9'; }}
+                onMouseLeave={e => e.currentTarget.style.opacity = '1'}>
                 {loading ? (
                   <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
-                    Sending...
+                    <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                    Sending…
                   </>
                 ) : (
                   <>
-                    <FaPaperPlane />
-                    Send Message
+                    <FaPaperPlane className="text-xs" /> Send Message
                   </>
                 )}
               </button>
             </form>
           </div>
 
-          {/* Additional Information */}
-          <div className="space-y-6">
-            {/* Office Location */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-start gap-4 mb-4">
-                <div className="bg-[#5A0F1B]/10 p-3 rounded-full">
-                  <FaMapMarkerAlt className="text-xl text-[#5A0F1B]" />
+          {/* Sidebar info */}
+          <div className="lg:col-span-2 flex flex-col gap-5">
+
+            {/* Address */}
+            <div className="rounded-2xl p-6"
+              style={{ background: '#fff', border: `1.5px solid ${C.skinMid}`, boxShadow: '0 2px 14px rgba(47,30,20,0.06)' }}>
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: C.terraMid, color: C.terra }}>
+                  <FaMapMarkerAlt className="text-sm" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-800 mb-2">Our Office</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
+                  <h3 className="font-serif mb-2" style={{ color: C.dark, fontSize: '1.05rem' }}>Our Location</h3>
+                  <p className="font-sans text-sm leading-relaxed" style={{ color: C.wood }}>
                     11/109/2, Edavattam,<br />
                     Thirunanthikarai, Kulasekharam,<br />
-                    Kanyakumari Dist - 629161,<br />
-                    Tamilnadu, India
+                    Kanyakumari Dist — 629161,<br />
+                    Tamil Nadu, India
                   </p>
                 </div>
               </div>
-
-              {/* Map */}
-              <div className="w-full h-52 bg-gray-200 rounded-lg overflow-hidden mt-4">
+              <div className="mt-4 rounded-xl overflow-hidden" style={{ height: 180 }}>
                 <iframe
                   title="Office Location"
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d248849.886539092!2d77.49085284335113!3d12.953945614058336!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1670c9b44e6d%3A0xf8dfc3e8517e4fe0!2sBengaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1234567890123!5m2!1sen!2sin"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen=""
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>
+                  width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade" />
               </div>
             </div>
 
-            {/* Business Hours */}
-            <div className="bg-white rounded-lg shadow-md p-6">
+            {/* Business hours */}
+            <div className="rounded-2xl p-6"
+              style={{ background: '#fff', border: `1.5px solid ${C.skinMid}`, boxShadow: '0 2px 14px rgba(47,30,20,0.06)' }}>
               <div className="flex items-start gap-4">
-                <div className="bg-[#5A0F1B]/10 p-3 rounded-full">
-                  <FaClock className="text-xl text-[#5A0F1B]" />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: C.goldMid, color: C.wood }}>
+                  <FaClock className="text-sm" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-800 mb-3">Business Hours</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between text-gray-600">
-                      <span className="font-medium">Monday - Friday:</span>
-                      <span>10:00 AM - 7:00 PM</span>
-                    </div>
-                    <div className="flex justify-between text-gray-600">
-                      <span className="font-medium">Saturday:</span>
-                      <span>10:00 AM - 6:00 PM</span>
-                    </div>
-                    <div className="flex justify-between text-gray-600">
-                      <span className="font-medium">Sunday:</span>
-                      <span className="text-red-600 font-medium">Closed</span>
-                    </div>
+                  <h3 className="font-serif mb-3" style={{ color: C.dark, fontSize: '1.05rem' }}>Business Hours</h3>
+                  <div className="space-y-2">
+                    {[
+                      { day: 'Monday – Friday', time: '10:00 AM – 7:00 PM' },
+                      { day: 'Saturday',        time: '10:00 AM – 6:00 PM' },
+                      { day: 'Sunday',          time: 'Closed', closed: true },
+                    ].map(({ day, time, closed }) => (
+                      <div key={day} className="flex justify-between items-center py-1.5"
+                        style={{ borderBottom: `1px solid ${C.skinMid}` }}>
+                        <span className="font-sans text-xs font-semibold" style={{ color: C.dark }}>{day}</span>
+                        <span className="font-sans text-xs" style={{ color: closed ? C.terra : C.wood }}>{time}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Help Center CTA */}
-            <div className="bg-gradient-to-r from-[#5A0F1B] to-[#7A1525] rounded-lg shadow-md p-6 text-white">
-              <h3 className="text-xl font-bold mb-2">Need Quick Answers?</h3>
-              <p className="text-white/90 text-sm mb-4">
-                Check our FAQ section for instant answers to common questions about orders, shipping, and returns.
-              </p>
-              <button className="bg-white text-[#5A0F1B] px-5 py-2.5 rounded-lg font-bold hover:bg-gray-100 transition-all text-sm">
-                View FAQ
-              </button>
-            </div>
+            {/* WhatsApp CTA */}
+            <a href="https://wa.me/918807259471" target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-4 p-5 rounded-2xl transition-all duration-200 group"
+              style={{ background: C.dark, border: `1.5px solid ${C.gold}30` }}
+              onMouseEnter={e => e.currentTarget.style.background = C.wood}
+              onMouseLeave={e => e.currentTarget.style.background = C.dark}>
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl"
+                style={{ background: '#25D36625', color: '#25D366' }}>
+                <FaWhatsapp />
+              </div>
+              <div>
+                <p className="font-sans font-bold text-sm leading-tight mb-0.5" style={{ color: C.skin }}>
+                  Need a quick answer?
+                </p>
+                <p className="font-sans text-xs" style={{ color: `${C.skinMid}AA` }}>
+                  Chat with us on WhatsApp — we reply fast!
+                </p>
+              </div>
+            </a>
+
           </div>
         </div>
       </div>
