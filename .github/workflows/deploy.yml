@@ -32,18 +32,18 @@ jobs:
             mkdir -p /home/ec2-user/apps
 
             # Clone repository if it doesn't exist, otherwise pull latest
-            if [ ! -d "/home/ec2-user/apps/thrayam-threads" ]; then
+            if [ ! -d "/home/ec2-user/apps/thrayam-toys" ]; then
               echo "Cloning repository for the first time..."
               cd /home/ec2-user/apps
-              git clone https://github.com/thrayamtech/thrayam-threads.git
+              git clone https://github.com/thrayamtech/Thrayam-toys.git thrayam-toys
             else
               echo "Pulling latest changes..."
-              cd /home/ec2-user/apps/thrayam-threads
+              cd /home/ec2-user/apps/thrayam-toys
               git pull origin main
             fi
 
             # Install backend dependencies
-            cd /home/ec2-user/apps/thrayam-threads/backend
+            cd /home/ec2-user/apps/thrayam-toys/backend
             npm install --production
 
             # Restart PM2 process
@@ -65,7 +65,7 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "frontend/build/."
-          target: "/home/ec2-user/apps/thrayam-threads/frontend/build"
+          target: "/home/ec2-user/apps/thrayam-toys/frontend/build"
           strip_components: 2
 
       # ---------- RELOAD NGINX ----------
